@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Aryan Kashyap | Machine Learning Engineer </title>
+
+        <link rel="stylesheet" href="style.css" />
+        <script src="index.js"></script>
+        
+        <!-- FAVICON -->
+        <link rel="shortcut icon" href="./assets/logo.svg" type="image/x-icon" />
+        
+        <!-- FONT AWESOME CDN -->
+        <script src="https://kit.fontawesome.com/2d1bb57507.js" crossorigin="anonymous"></script>
+
+        <!-- DEVICON CDN -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css">
+    </head>
+    <body>
+        <section id="landing-page" onmousemove="moveBackground(event)">
+            <nav>
+                <figure>
+                    <img id="personal-logo" src="./assets/logo.svg" alt="" />
+                </figure>
+                <ul class="nav__link--list">
+                    <li class="nav__link" onclick="toggleModal()">
+                        <a href="#"  class="nav__link--anchor link__hover-effect link__hover-effect--black">About</a>
+                    </li>
+                    <li class="nav__link">
+                        <a href="#projects" class="nav__link--anchor link__hover-effect link__hover-effect--black">Projects</a>
+                    </li>
+                    <li class="nav__link" onclick="toggleModal()">
+                        <a href="#" class="nav__link--anchor link__hover-effect link__hover-effect--black">Contact</a>
+                    </li>
+                    <li class="nav__link click">
+                        <a href="#" class="nav__link--anchor link__hover-effect">
+                            <i class="fa-solid fa-moon" onclick="toggleContrast()"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <header class="header">
+                <div class="header__content">
+                    <h1 class="title">Hey</h1>
+                    <h1 class="title accent-color">I'm Aryan.</h1>
+                    <p class="header__para">
+                        I'm a <b class="accent-color">Machine Learning Engineer</b> with a strong passion for developing technologies that solve real-world problems. 
+                        <br />
+                        Here's a bit <b class="accent-color accent-color--about-me" onclick="toggleModal()">about me</b>.
+                    </p>
+                    <div class="social__list">
+                        <a href="https://github.com/aryankashyap7" target="_blank" class="social__link click"><i class="fa-brands fa-github"></i></a>
+                        <a href="https://www.linkedin.com/in/aryankashyap/" target="_blank" class="social__link click"
+                            ><i class="fa-brands fa-linkedin-in"></i
+                        ></a>
+                        <a href="./assets/Aryan Kashyap Resume.pdf" target="_blank" class="social__link click"
+                            ><i class="fa fa-file-pdf-o"></i
+                        ></a>
+                    </div>
+                </div>
+            </header>
+
+            <a href="#">
+                <button class="mail__btn click" onclick="toggleModal()">
+                    <i class="fa-solid fa-envelope"></i>
+                </button>
+            </a>
+
+            <a href="#projects" class="scroll">
+                <div class="scroll__icon click"></div>
+            </a>
+        </section>
+
+        <div class="modal">
+            <div class="modal__half modal__about">
+                <h3 class="modal__title modal__title--about">Here's a bit about me</h3>
+                <h4 class="modal__sub-title modal__sub-title--about">Frontend Software Engineer</h4>
+                <p class="modal__para">
+                    I'm a 20-year old <span class="accent-color">frontend software engineer</span> with a strong passion for developing websites with great
+                    <span class="accent-color">user experiences.</span> <br />
+                    I currently work on extremely difficul engineering problems and learn from a team consisting of some of the most
+                    <span class="accent-color">talented</span> and <span class="accent-color">experienced</span>
+                    software engineers every day.
+                </p>
+                <!-- 8 PROGRAMMING LANGUAGES -->
+                <div class="modal__languages">
+                    <figure class="modal__language">
+                        <img
+                            class="modal__language--img"
+                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg"
+                            alt=""
+                        />
+                        <span class="language__name">HTML5</span>
+                    </figure>
+                    <figure class="modal__language">
+                        <img
+                            class="modal__language--img"
+                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg"
+                            alt=""
+                        />
+                        <span class="language__name">CSS3</span>
+                    </figure>
+                    <figure class="modal__language">
+                        <img
+                            class="modal__language--img"
+                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"
+                            alt=""
+                        />
+                        <span class="language__name">JavaScript</span>
+                    </figure>
+                    <figure class="modal__language">
+                        <img
+                            class="modal__language--img"
+                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
+                            alt=""
+                        />
+                        <span class="language__name">React.js</span>
+                    </figure>
+                    <figure class="modal__language">
+                        <img
+                            class="modal__language--img"
+                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/laravel/laravel-plain.svg"
+                            alt=""
+                        />
+                        <span class="language__name">Laravel</span>
+                    </figure>
+                    <figure class="modal__language">
+                        <img
+                        class="modal__language--img"
+                        src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg"
+                        alt=""
+                        />
+                        <span class="language__name">TailwindCSS</span>
+                    </figure>
+                    <figure class="modal__language">
+                        <img
+                        class="modal__language--img"
+                        src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg"
+                        alt=""
+                        />
+                        <span class="language__name">BootstrapCSS</span>
+                    </figure>
+                    <figure class="modal__language">
+                        <img
+                            class="modal__language--img"
+                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg"
+                            alt=""
+                        />
+                        <span class="language__name">Next.js</span>
+                    </figure>
+                </div>
+            </div>
+            <div class="modal__half modal__contact">
+                <i class="fa-solid fa-xmark modal__exit click" onclick="toggleModal()"></i>
+                <h3 class="modal__title modal__title--contact">Let's have a chat!</h3>
+                <h4 class="modal__sub-title modal__sub-title--contact">I'm currently open to new oppurtunities.</h4>
+                <form id="contact__form" onsubmit="contact(event)">
+                    <div class="form__item">
+                        <label class="form__item--label">Name</label>
+                        <input type="text" class="input" name="user_name"></input>
+                    </div>
+                    <div class="form__item">
+                        <label class="form__item--label">Email</label>
+                        <input type="email" class="input" name="user_email"></input>
+                    </div>
+                    <div class="form__item">
+                        <label class="form__item--label">Message</label>
+                        <textarea type="text" class="input" name="message"></textarea>
+                    </div>
+                    <button id="contact__submit" class="form__submit">
+                        Send it my way!
+                    </button>
+                </form>
+                <div class="modal__overlay modal__overlay--loading">
+                        <i class="fa-solid fa-spinner"></i>
+                </div>
+                <div class="modal__overlay modal__overlay--success">
+                    Thanks for the message, looking forward to speaking to you soon!
+                </div>
+            </div>
+
+
+        </div>
+
+        <img src="./assets/semi circle.svg" class="shape shape--0">
+        <img src="./assets/circle.svg" class="shape shape--1">
+        <img src="./assets/squiggly.svg" class="shape shape--2">
+        <img src="./assets/circle.svg" class="shape shape--3">
+        <img src="./assets/triangle.svg" class="shape shape--4">
+        <img src="./assets/circle.svg" class="shape shape--5">
+        <img src="./assets/squiggly.svg" class="shape shape--6">
+        <img src="./assets/circle.svg" class="shape shape--7">
+        <img src="./assets/semi circle.svg" class="shape shape--8">
+
+        <section id="projects">
+            <div class="container">
+                <div class="row">
+                    <h1 class="section__title">Here are some of my <span class="accent-color">projects</span></h1>
+                    <ul class="project__list">
+                        <!-- 1. Facial Image Classification -->
+                        <li class="project">
+                            <div class="project__wrapper">
+                                <img src="./assets/FIC.gif" class="project__img" alt="" />
+                                <div class="project__wrapper--bg"></div>
+                                <div class="project__description">
+                                    <h3 class="project__description--title">Facial Image Classification</h3>
+                                    <h4 class="project__description--sub-title">
+                                        <i class="fa-solid fa-robot"></i> SVM Classifier
+                                    </h4>
+                                    <p class="project__description--para">
+                                        An Facial Image Classification that uses a Machine Learning model to classify images of faces into 5 different categories.
+                                        ▹ Use of Harcascade Classifier to detect faces in images <br />
+                                        ▹ Fine tuning of SVM Classifier to achieve 97% accuracy <br />
+                                        ▹ Flask API to serve the model <br />
+                                        ▹ Deployment on Amazon Web Services <br />
+                                    </p>
+                                    <div class="project__description--links">
+                                        <a href="https://github.com/aryankashyap7/Facial-Image-Classification" class="project__description--link">
+                                            <i class="fa-brands fa-github"></i>
+                                        </a>
+                                        <a href="https://github.com/aryankashyap7/Facial-Image-Classification" class="project__description--link">
+                                            <i class="fa-solid fa-link"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <!-- 2. Real Estate Price Detector -->
+                        <li class="project">
+                            <div class="project__wrapper">
+                                <img src="./assets/REPP.png" class="project__img" alt="" />
+                                <div class="project__wrapper--bg"></div>
+                                <div class="project__description">
+                                    <h3 class="project__description--title">Real Estate Price Detector</h3>
+                                    <h4 class="project__description--sub-title">
+                                        <i class="devicon-python-plain"></i> Python
+                                    </h4>
+                                    <p class="project__description--para">
+                                        A Real Estate Price Detector that uses a Machine Learning model to predict the price of a house based on various features.
+                                        ▹ Use of Linear Regression to predict the price of a house <br />
+                                        ▹ Use of GridSearchCV to fine tune the model <br />
+                                        ▹ Use of Flask API to serve the model <br />
+                                    </p>
+                                    <div class="project__description--links">
+                                        <a href="https://github.com/aryankashyap7/Real-Estate-Price-Predictor" class="project__description--link">
+                                            <i class="fa-brands fa-github"></i>
+                                        </a>
+                                        <a href="https://github.com/aryankashyap7/Real-Estate-Price-Predictor">
+                                            <i class="fa-solid fa-link"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- DUMMY PROJECT
+                        <li class="project">
+                            <div class="project__wrapper">
+                                <img src="./assets/blinker mockup.png" class="project__img" alt="" />
+                                <div class="project__wrapper--bg"></div>
+                                <div class="project__description">
+                                    <h3 class="project__description--title">Car Sales Project</h3>
+                                    <h4 class="project__description--sub-title">HTML, CSS, JavaScript, Vue, Vuex</h4>
+                                    <p class="project__description--para">
+                                        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ab numquam rem omnis, consectetur provident corrupti.
+                                    </p>
+                                    <div class="project__description--links">
+                                        <a href="#" class="project__description--link">
+                                            <i class="fa-brands fa-github"></i>
+                                        </a>
+                                        <a href="#" class="project__description--link">
+                                            <i class="fa-solid fa-link"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </li> -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills">
+            <div class="container">
+                <div class="row">
+                    <h1 class="section__title">Here are some of my <span class="accent-color">web dev skills</span></h1>
+                    <div class="skills__languages">
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg"
+                                alt=""
+                            />
+                            <span class="language__name">HTML5</span>
+                        </figure>
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg"
+                                alt=""
+                            />
+                            <span class="language__name">CSS3</span>
+                        </figure>
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"
+                                alt=""
+                            />
+                            <span class="language__name">JavaScript</span>
+                        </figure>
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
+                                alt=""
+                            />
+                            <span class="language__name">React.js</span>
+                        </figure>
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/laravel/laravel-plain.svg"
+                                alt=""
+                            />
+                            <span class="language__name">Laravel</span>
+                        </figure>
+                        <figure class="skills__language">
+                            <img
+                            class="skills__language--img"
+                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg"
+                            alt=""
+                            />
+                            <span class="language__name">TailwindCSS</span>
+                        </figure>
+                        <figure class="skills__language">
+                            <img
+                            class="skills__language--img"
+                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg"
+                            alt=""
+                            />
+                            <span class="language__name">BootstrapCSS</span>
+                        </figure>
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg"
+                                alt=""
+                            />
+                            <span class="language__name">Next.js</span>
+                        </figure>
+                    </div>
+
+                    <h1 class="section__title">And some <span class="accent-color">programming languages</span> I know</h1>
+                    <div class="skills__languages">
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg"
+                                alt=""
+                            />
+                            <span class="language__name">C</span>
+                        </figure>
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg"
+                                alt=""
+                            />
+                            <span class="language__name">C++</span>
+                        </figure>
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg"
+                                alt=""
+                            />
+                            <span class="language__name">Java</span>
+                        </figure>
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg"
+                                alt=""
+                            />
+                            <span class="language__name">Python</span>
+                        </figure>
+                    </div>
+
+                    <h1 class="section__title">Other useful <span class="accent-color">tech</span> I know well</h1>
+                    <div class="skills__languages">
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg"
+                                alt=""
+                            />
+                            <span class="language__name">VS Code</span>
+                        </figure>
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg"
+                                alt=""
+                            />
+                            <span class="language__name">Git</span>
+                        </figure>
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
+                                alt=""
+                            />
+                            <span class="language__name">GitHub</span>
+                        </figure>
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg"
+                                alt=""
+                            />
+                            <span class="language__name">Linux</span>
+                        </figure>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <div class="container">
+                <div class="row footer__row">
+                    <figure>
+                        <img class="footer__logo--img" src="./assets/logo.svg" alt="" />
+                    </figure>
+                    <div class="footer__social--list">
+                        <a href="https://github.com/aryankashyap7" target="_blank" class="footer__social--link link__hover-effect link__hover-effect--white">GitHub</a>
+                        <a href="https://www.linkedin.com/in/aryankashyap/" target="_blank" class="footer__social--link link__hover-effect link__hover-effect--white">LinkedIn</a>
+                        <a href="mailto:akmail2017@gmail.com"                         class="footer__social--link link__hover-effect link__hover-effect--white" onclick="toggleModal()">Contact</a>
+                        <a href="./assets/Aryan Kashyap Resume.pdf" class="footer__social--link link__hover-effect link__hover-effect--white">Resume</a>
+                    </div>
+                    <div class="footer__copyright">Copyright © Aryan Kashyap</div>
+                </div>
+            </div>
+        </footer>
+
+        
+        <!-- EMAIL.JS -->
+        <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js">
+        </script>
+        <script type="text/javascript">
+            (function(){emailjs.init("seCKWFuPSTJAb1zqo");})();
+        </script>
+
+    </body>
+</html>
