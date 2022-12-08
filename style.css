@@ -602,7 +602,6 @@ footer {
 
 .shape {
   position: fixed;
-  z-index: 10;
 }
 
 .shape--0 {
