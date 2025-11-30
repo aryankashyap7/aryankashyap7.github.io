@@ -449,6 +449,8 @@ nav .container {
 .hero-orb {
   --tiltX: 0deg;
   --tiltY: 0deg;
+  --blobOffsetX: 0px;
+  --blobOffsetY: 0px;
   width: clamp(260px, 30vw, 360px);
   aspect-ratio: 1 / 1;
   border-radius: 999px;
@@ -485,8 +487,9 @@ nav .container {
     radial-gradient(circle at 0% 100%, #22c55e 0%, transparent 55%);
   filter: blur(6px);
   border-radius: 40% 60% 65% 35% / 45% 35% 65% 55%;
-  animation: blobMorph 13s ease-in-out infinite;
   opacity: 0.9;
+  transform: translate3d(var(--blobOffsetX), var(--blobOffsetY), 0);
+  transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .hero-orb__inner-glow {

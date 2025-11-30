@@ -44,8 +44,45 @@ function toggleContrast() {
     }
 }
 
-// Parallax effect for shapes
+// Parallax effect for shapes + interactive hero blob
 const scaleFactor = 1 / 25
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+// Physics-style blob movement state
+let blobTargetX = 0
+let blobTargetY = 0
+let blobCurrentX = 0
+let blobCurrentY = 0
+let blobVelocityX = 0
+let blobVelocityY = 0
+
+const blobStiffness = 0.12
+const blobDamping = 0.8
+
+function animateBlob() {
+    if (prefersReducedMotion) return
+
+    const blob = document.querySelector('.hero-orb__blob')
+    if (!blob) {
+        requestAnimationFrame(animateBlob)
+        return
+    }
+
+    const dx = blobTargetX - blobCurrentX
+    const dy = blobTargetY - blobCurrentY
+
+    blobVelocityX = blobVelocityX * blobDamping + dx * blobStiffness
+    blobVelocityY = blobVelocityY * blobDamping + dy * blobStiffness
+
+    blobCurrentX += blobVelocityX
+    blobCurrentY += blobVelocityY
+
+    blob.style.setProperty('--blobOffsetX', `${blobCurrentX}px`)
+    blob.style.setProperty('--blobOffsetY', `${blobCurrentY}px`)
+
+    requestAnimationFrame(animateBlob)
+}
+
 function moveBackground(event) {
     const shapes = document.querySelectorAll('.shape')
     const x = event.clientX * scaleFactor
@@ -57,17 +94,33 @@ function moveBackground(event) {
         shapes[i].style.transform = `translate(${x * boolInt}px, ${y * boolInt}px) rotate(${x * boolInt * 0.05}deg)`
     }
 
-    // Subtle tilt for the hero orb to enhance the 3D feel
-    const orb = document.querySelector('.hero-orb')
-    if (orb) {
-        const xPercent = (event.clientX / window.innerWidth) - 0.5
-        const yPercent = (event.clientY / window.innerHeight) - 0.5
+    if (!prefersReducedMotion) {
+        // Subtle tilt for the hero orb to enhance the 3D feel
+        const orb = document.querySelector('.hero-orb')
+        if (orb) {
+            const rect = orb.getBoundingClientRect()
+            const centerX = rect.left + rect.width / 2
+            const centerY = rect.top + rect.height / 2
 
-        const tiltX = xPercent * 16
-        const tiltY = -yPercent * 12
+            // Normalize cursor position relative to orb center and clamp
+            let relX = (event.clientX - centerX) / rect.width
+            let relY = (event.clientY - centerY) / rect.height
 
-        orb.style.setProperty('--tiltX', `${tiltX}deg`)
-        orb.style.setProperty('--tiltY', `${tiltY}deg`)
+            const clamp = (value, min, max) => Math.max(min, Math.min(max, value))
+            relX = clamp(relX, -0.8, 0.8)
+            relY = clamp(relY, -0.8, 0.8)
+
+            const tiltX = relX * 12
+            const tiltY = -relY * 9
+
+            orb.style.setProperty('--tiltX', `${tiltX}deg`)
+            orb.style.setProperty('--tiltY', `${tiltY}deg`)
+
+            // Drive blob target towards cursor with a limited offset
+            const maxOffset = 20
+            blobTargetX = relX * maxOffset
+            blobTargetY = relY * maxOffset
+        }
     }
 }
 
@@ -124,6 +177,9 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     
     projects.forEach(project => observer.observe(project))
+
+    // Kick off continuous blob animation loop (for cursor-based physics)
+    requestAnimationFrame(animateBlob)
 })
 
 // Page loaded
