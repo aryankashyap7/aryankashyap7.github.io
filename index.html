@@ -657,33 +657,33 @@
             </div>
         </section>
 
-        <section id="playground" aria-label="Flight mini-game">
+        <section id="playground" aria-label="Space shooter mini-game">
             <div class="container">
                 <div class="row playground__row">
                     <div class="playground__copy">
-                        <p class="playground__eyebrow">Tiny game · fly through the valley</p>
-                        <h2 class="playground__title">Night Flight</h2>
+                        <p class="playground__eyebrow">Tiny game · space lane shooter</p>
+                        <h2 class="playground__title">Starline</h2>
                         <p class="playground__subtitle">
-                            Guide a little plane through shifting terrain. It’s simple: don’t hit the walls, enjoy the glow, and zone out for a few seconds.
+                            Drift through a narrow star corridor, dodge enemy fire, and send a stream of shots up the lane. It’s a simple, endless arcade loop that sits quietly at the bottom of the page.
                         </p>
                         <ul class="playground__hints">
-                            <li>Move your mouse over the field to steer the plane up and down.</li>
-                            <li>Click to give the engines a short boost.</li>
-                            <li>If you crash, tap anywhere to restart.</li>
+                            <li>Use <span>←</span><span>→</span> to strafe, <span>↑</span><span>↓</span> to fine‑tune position.</li>
+                            <li>Press <span>Space</span> to fire.</li>
+                            <li>When you’re hit or collide, press <span>Enter</span> to restart.</li>
                         </ul>
                     </div>
                     <div class="playground__canvas-wrapper">
                         <div class="playground__hud">
                             <div class="playground__hud-row">
-                                <span class="playground__hud-label">Distance</span>
-                                <span class="playground__hud-value" id="flightDistance">0 m</span>
+                                <span class="playground__hud-label">Score</span>
+                                <span class="playground__hud-value" id="shooterScore">0</span>
                             </div>
                             <div class="playground__hud-row playground__hud-row--secondary">
                                 <span class="playground__hud-label">Status</span>
-                                <span class="playground__hud-value" id="flightStatus">Cruising</span>
+                                <span class="playground__hud-value" id="shooterStatus">Ready</span>
                             </div>
                         </div>
-                        <canvas id="flightGame" aria-hidden="true"></canvas>
+                        <canvas id="shooterGame" aria-hidden="true"></canvas>
                     </div>
                 </div>
             </div>
@@ -717,3 +717,4 @@
 
     </body>
 </html>
+

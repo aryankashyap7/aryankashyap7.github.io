@@ -154,326 +154,420 @@ const observer = new IntersectionObserver((entries) => {
     })
 }, observerOptions)
 
-// ==================== NIGHT FLIGHT – CANVAS MINI GAME ====================
-const flightGame = {
+// ==================== STARLINE – SPACE LANE SHOOTER ====================
+const shooterGame = {
     canvas: null,
     ctx: null,
     width: 0,
     height: 0,
-    terrain: [],
-    planeY: 0,
-    planeVy: 0,
-    targetY: 0,
-    scrollX: 0,
-    speed: 160,
-    boost: 0,
-    gravity: 280,
-    damping: 0.9,
+    playerX: 0,
+    playerY: 0,
+    playerSpeed: 280,
+    moveLeft: false,
+    moveRight: false,
+    moveUp: false,
+    moveDown: false,
+    bullets: [],
+    enemies: [],
+    enemyBullets: [],
+    lastTime: 0,
+    fireCooldown: 0,
     running: false,
     crashed: false,
-    distance: 0,
-    lastTime: 0
+    score: 0,
+    shields: 3
 }
 
-function initFlightGame() {
-    const canvas = document.getElementById('flightGame')
+function initShooterGame() {
+    const canvas = document.getElementById('shooterGame')
     if (!canvas) return
+    shooterGame.canvas = canvas
+    shooterGame.ctx = canvas.getContext('2d')
 
-    const ctx = canvas.getContext('2d')
-    flightGame.canvas = canvas
-    flightGame.ctx = ctx
+    resizeShooterCanvas()
+    window.addEventListener('resize', resizeShooterCanvas)
 
-    resizeFlightCanvas()
-    window.addEventListener('resize', resizeFlightCanvas)
+    document.addEventListener('keydown', handleShooterKeydown)
+    document.addEventListener('keyup', handleShooterKeyup)
 
-    canvas.addEventListener('mousemove', handleFlightMouseMove)
-    canvas.addEventListener('mouseleave', () => {
-        flightGame.targetY = flightGame.height * 0.5
-    })
-
-    canvas.addEventListener('mousedown', () => {
-        if (flightGame.crashed) {
-            resetFlightGame()
-        } else {
-            flightGame.boost = 1.1
-        }
-    })
-
-    resetFlightGame()
-    requestAnimationFrame(stepFlightGame)
+    resetShooterGame()
+    requestAnimationFrame(stepShooterGame)
 }
 
-function resizeFlightCanvas() {
-    if (!flightGame.canvas) return
-    const rect = flightGame.canvas.getBoundingClientRect()
+function resizeShooterCanvas() {
+    if (!shooterGame.canvas) return
+    const rect = shooterGame.canvas.getBoundingClientRect()
     const dpr = window.devicePixelRatio || 1
-    flightGame.canvas.width = rect.width * dpr
-    flightGame.canvas.height = rect.height * dpr
-    flightGame.ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    flightGame.width = rect.width
-    flightGame.height = rect.height
+    shooterGame.canvas.width = rect.width * dpr
+    shooterGame.canvas.height = rect.height * dpr
+    shooterGame.ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    shooterGame.width = rect.width
+    shooterGame.height = rect.height
 
-    if (flightGame.terrain.length === 0) {
-        generateTerrain()
+    if (!shooterGame.running && !shooterGame.crashed) {
+        shooterGame.playerX = shooterGame.width / 2
+        shooterGame.playerY = shooterGame.height * 0.78
     }
 }
 
-function generateTerrain() {
-    flightGame.terrain = []
-    const segments = 120
-    const width = flightGame.width
-    const height = flightGame.height
-    const baseGap = height * 0.45
-    let midpoint = height * 0.5
+function resetShooterGame() {
+    shooterGame.bullets = []
+    shooterGame.enemies = []
+    shooterGame.enemyBullets = []
+    shooterGame.playerX = shooterGame.width / 2
+    shooterGame.playerY = shooterGame.height * 0.78
+    shooterGame.score = 0
+    shooterGame.shields = 3
+    shooterGame.running = true
+    shooterGame.crashed = false
+    shooterGame.lastTime = performance.now()
+    shooterGame.fireCooldown = 0
 
-    for (let i = 0; i <= segments; i++) {
-        const t = i / segments
-        const noise = (Math.sin(t * Math.PI * 2) + Math.sin(t * Math.PI * 4 + 1.2)) * 0.12
-        midpoint += (Math.random() - 0.5) * height * 0.08
-        midpoint = Math.max(height * 0.3, Math.min(height * 0.7, midpoint))
-        const gap = baseGap * (0.8 + Math.random() * 0.4)
-        const top = midpoint - gap / 2 + noise * height
-        const bottom = midpoint + gap / 2 + noise * height
-        flightGame.terrain.push({
-            x: (i / segments) * (width * 2),
-            top,
-            bottom
+    spawnEnemyWave()
+    updateShooterHud()
+}
+
+function handleShooterKeydown(e) {
+    if (e.key === 'ArrowLeft') {
+        shooterGame.moveLeft = true
+    } else if (e.key === 'ArrowRight') {
+        shooterGame.moveRight = true
+    } else if (e.key === 'ArrowUp') {
+        shooterGame.moveUp = true
+    } else if (e.key === 'ArrowDown') {
+        shooterGame.moveDown = true
+    } else if (e.key === ' ' && shooterGame.running) {
+        e.preventDefault()
+        tryFireBullet()
+    } else if ((e.key === 'Enter' || e.key === ' ') && shooterGame.crashed) {
+        e.preventDefault()
+        resetShooterGame()
+    }
+}
+
+function handleShooterKeyup(e) {
+    if (e.key === 'ArrowLeft') shooterGame.moveLeft = false
+    if (e.key === 'ArrowRight') shooterGame.moveRight = false
+    if (e.key === 'ArrowUp') shooterGame.moveUp = false
+    if (e.key === 'ArrowDown') shooterGame.moveDown = false
+}
+
+function spawnEnemyWave() {
+    const cols = 6
+    const spacingX = shooterGame.width / (cols + 1)
+    const y = shooterGame.height * 0.12
+    shooterGame.enemies = []
+    for (let i = 0; i < cols; i++) {
+        shooterGame.enemies.push({
+            x: spacingX * (i + 1),
+            y,
+            vx: (Math.random() - 0.5) * 40,
+            phase: Math.random() * Math.PI * 2,
+            alive: true,
+            coolDown: Math.random() * 1.2 + 0.5
         })
     }
 }
 
-function handleFlightMouseMove(e) {
-    const rect = flightGame.canvas.getBoundingClientRect()
-    const y = e.clientY - rect.top
-    flightGame.targetY = y
+function tryFireBullet() {
+    if (shooterGame.fireCooldown > 0) return
+    shooterGame.bullets.push({
+        x: shooterGame.playerX,
+        y: shooterGame.playerY - 18,
+        vy: -420
+    })
+    shooterGame.fireCooldown = 0.16
 }
 
-function resetFlightGame() {
-    const h = flightGame.height || 240
-    flightGame.planeY = h * 0.5
-    flightGame.targetY = h * 0.5
-    flightGame.planeVy = 0
-    flightGame.scrollX = 0
-    flightGame.distance = 0
-    flightGame.speed = 180
-    flightGame.boost = 0
-    flightGame.running = true
-    flightGame.crashed = false
-    flightGame.lastTime = performance.now()
-    generateTerrain()
-    updateFlightHud()
+function stepShooterGame(timestamp) {
+    if (!shooterGame.canvas || !shooterGame.ctx) return
+
+    const dt = (timestamp - shooterGame.lastTime) / 1000 || 0.016
+    shooterGame.lastTime = timestamp
+
+    updateShooterState(dt)
+    renderShooterScene()
+
+    requestAnimationFrame(stepShooterGame)
 }
 
-function stepFlightGame(timestamp) {
-    if (!flightGame.canvas || !flightGame.ctx) return
+function updateShooterState(dt) {
+    if (!shooterGame.running) return
 
-    const dt = (timestamp - flightGame.lastTime) / 1000 || 0.016
-    flightGame.lastTime = timestamp
-
-    updateFlightState(dt)
-    renderFlightScene()
-
-    requestAnimationFrame(stepFlightGame)
-}
-
-function updateFlightState(dt) {
-    if (!flightGame.running) return
-
-    if (flightGame.boost > 0) {
-        flightGame.speed += 180 * dt
-        flightGame.boost -= dt
-    } else {
-        flightGame.speed += (180 - flightGame.speed) * 0.6 * dt
+    const speed = shooterGame.playerSpeed
+    let dx = 0
+    let dy = 0
+    if (shooterGame.moveLeft) dx -= 1
+    if (shooterGame.moveRight) dx += 1
+    if (shooterGame.moveUp) dy -= 1
+    if (shooterGame.moveDown) dy += 1
+    if (dx !== 0 || dy !== 0) {
+        const len = Math.hypot(dx, dy) || 1
+        dx /= len
+        dy /= len
     }
+    shooterGame.playerX += dx * speed * dt
+    shooterGame.playerY += dy * speed * dt
 
-    const accel = (flightGame.targetY - flightGame.planeY) * 4
-    flightGame.planeVy += accel * dt
-    flightGame.planeVy *= flightGame.damping
-    flightGame.planeY += flightGame.planeVy * dt
+    const margin = 14
+    shooterGame.playerX = Math.max(margin, Math.min(shooterGame.width - margin, shooterGame.playerX))
+    shooterGame.playerY = Math.max(shooterGame.height * 0.45, Math.min(shooterGame.height - margin, shooterGame.playerY))
 
-    const width = flightGame.width
-    const height = flightGame.height
+    if (shooterGame.fireCooldown > 0) shooterGame.fireCooldown -= dt
 
-    flightGame.scrollX += flightGame.speed * dt
-    flightGame.distance += flightGame.speed * dt * 0.2
+    shooterGame.bullets.forEach(b => {
+        b.y += b.vy * dt
+    })
+    shooterGame.bullets = shooterGame.bullets.filter(b => b.y > -20)
 
-    // Keep world coordinates bounded to avoid precision / disappearing terrain
-    if (flightGame.scrollX > width) {
-        flightGame.scrollX -= width
-        const shift = width
-        flightGame.terrain.forEach(p => {
-            p.x -= shift
-        })
-    }
+    shooterGame.enemies.forEach(e => {
+        if (!e.alive) return
+        e.phase += dt * 1.4
+        e.y = shooterGame.height * 0.12 + Math.sin(e.phase) * 12
+        e.x += e.vx * dt
+        if (e.x < 40 || e.x > shooterGame.width - 40) e.vx *= -1
 
-    const planeX = width * 0.28
-    const planeY = flightGame.planeY
-
-    const terrain = flightGame.terrain
-    if (terrain.length > 1) {
-        // find segment range near plane
-        const tunnelX = flightGame.scrollX + planeX
-        for (let i = 0; i < terrain.length - 1; i++) {
-            const a = terrain[i]
-            const b = terrain[i + 1]
-            if (tunnelX >= a.x && tunnelX <= b.x) {
-                const t = (tunnelX - a.x) / (b.x - a.x)
-                const top = a.top + (b.top - a.top) * t
-                const bottom = a.bottom + (b.bottom - a.bottom) * t
-                const margin = 12
-                if (planeY - margin < top || planeY + margin > bottom) {
-                    flightGame.running = false
-                    flightGame.crashed = true
-                    updateFlightHud(true)
-                }
-                break
-            }
+        e.coolDown -= dt
+        if (e.coolDown <= 0) {
+            shooterGame.enemyBullets.push({
+                x: e.x,
+                y: e.y + 12,
+                vy: 220 + Math.random() * 80
+            })
+            e.coolDown = Math.random() * 1.6 + 0.6
         }
+    })
+
+    shooterGame.enemyBullets.forEach(b => {
+        b.y += b.vy * dt
+    })
+    shooterGame.enemyBullets = shooterGame.enemyBullets.filter(b => b.y < shooterGame.height + 20)
+
+    shooterGame.bullets.forEach(b => {
+        shooterGame.enemies.forEach(e => {
+            if (!e.alive) return
+            const dx = b.x - e.x
+            const dy = b.y - e.y
+            if (Math.abs(dx) < 26 && Math.abs(dy) < 20) {
+                e.alive = false
+                b.y = -9999
+                shooterGame.score += 10
+            }
+        })
+    })
+    shooterGame.bullets = shooterGame.bullets.filter(b => b.y > -900)
+
+    const stillAlive = shooterGame.enemies.some(e => e.alive)
+    if (!stillAlive) {
+        spawnEnemyWave()
     }
 
-    // recycle terrain ahead when scroll passes first segment
-    const first = terrain[0]
-    if (flightGame.scrollX > first.x + width) {
-        terrain.shift()
-        const prev = terrain[terrain.length - 1]
-        const x = prev.x + width / 8
-        const baseGap = height * 0.42
-        const midpoint = (prev.top + prev.bottom) / 2 + (Math.random() - 0.5) * height * 0.08
-        const gap = baseGap * (0.9 + Math.random() * 0.25)
-        const top = Math.max(height * 0.18, Math.min(height * 0.75, midpoint - gap / 2))
-        const bottom = Math.max(top + gap * 0.7, midpoint + gap / 2)
-        terrain.push({ x, top, bottom })
-    }
+    shooterGame.enemyBullets.forEach(b => {
+        const dx = b.x - shooterGame.playerX
+        const dy = b.y - shooterGame.playerY
+        if (Math.abs(dx) < 16 && Math.abs(dy) < 18 && shooterGame.running) {
+            b.y = shooterGame.height + 999
+            applyPlayerHit()
+        }
+    })
+    shooterGame.enemyBullets = shooterGame.enemyBullets.filter(b => b.y < shooterGame.height + 500)
 
-    updateFlightHud()
+    shooterGame.enemies.forEach(e => {
+        if (!e.alive) return
+        const dx = e.x - shooterGame.playerX
+        const dy = e.y - shooterGame.playerY
+        if (Math.abs(dx) < 24 && Math.abs(dy) < 20 && shooterGame.running) {
+            e.alive = false
+            applyPlayerHit()
+        }
+    })
+
+    updateShooterHud()
 }
 
-function renderFlightScene() {
-    const ctx = flightGame.ctx
-    const width = flightGame.width
-    const height = flightGame.height
-    if (!ctx || width === 0 || height === 0) return
+function applyPlayerHit() {
+    shooterGame.shields -= 1
+    if (shooterGame.shields <= 0) {
+        shooterGame.running = false
+        shooterGame.crashed = true
+    } else {
+        shooterGame.playerX = shooterGame.width / 2
+        shooterGame.playerY = shooterGame.height * 0.8
+        shooterGame.enemyBullets = []
+    }
+}
 
-    ctx.clearRect(0, 0, width, height)
+function renderShooterScene() {
+    const ctx = shooterGame.ctx
+    const w = shooterGame.width
+    const h = shooterGame.height
+    if (!ctx || !w || !h) return
 
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, height)
-    skyGrad.addColorStop(0, '#020617')
-    skyGrad.addColorStop(1, '#020617')
-    ctx.fillStyle = skyGrad
-    ctx.fillRect(0, 0, width, height)
+    ctx.clearRect(0, 0, w, h)
+
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, h)
+    bgGrad.addColorStop(0, '#020617')
+    bgGrad.addColorStop(0.6, '#020617')
+    bgGrad.addColorStop(1, '#020617')
+    ctx.fillStyle = bgGrad
+    ctx.fillRect(0, 0, w, h)
 
     ctx.save()
-    ctx.translate(-flightGame.scrollX, 0)
-
-    ctx.strokeStyle = 'rgba(15, 23, 42, 0.9)'
+    ctx.strokeStyle = 'rgba(15,23,42,0.9)'
     ctx.lineWidth = 1
-    for (let x = 0; x < width * 3; x += 40) {
+    for (let i = 0; i < 16; i++) {
+        const y = (i / 16) * h
         ctx.beginPath()
-        ctx.moveTo(x, 0)
-        ctx.lineTo(x - 10, height)
+        ctx.moveTo(0, y)
+        ctx.lineTo(w, y + 18)
         ctx.stroke()
     }
-
-    const terrainGrad = ctx.createLinearGradient(0, 0, 0, height)
-    terrainGrad.addColorStop(0, 'rgba(15, 23, 42, 1)')
-    terrainGrad.addColorStop(1, '#020617')
-
-    const terrain = flightGame.terrain
-    if (terrain.length > 1) {
-        // top
-        ctx.fillStyle = terrainGrad
-        ctx.beginPath()
-        ctx.moveTo(terrain[0].x, 0)
-        terrain.forEach(p => {
-            ctx.lineTo(p.x, p.top)
-        })
-        ctx.lineTo(terrain[terrain.length - 1].x, 0)
-        ctx.closePath()
-        ctx.fill()
-
-        // bottom
-        ctx.beginPath()
-        ctx.moveTo(terrain[0].x, height)
-        terrain.forEach(p => {
-            ctx.lineTo(p.x, p.bottom)
-        })
-        ctx.lineTo(terrain[terrain.length - 1].x, height)
-        ctx.closePath()
-        ctx.fill()
-    }
-
     ctx.restore()
 
-    const planeX = width * 0.28
-    const planeY = flightGame.planeY
+    // Enemies – angular drones
+    shooterGame.enemies.forEach(e => {
+        if (!e.alive) return
+        const rx = e.x
+        const ry = e.y
+        ctx.save()
+        ctx.translate(rx, ry)
+
+        const shellGrad = ctx.createLinearGradient(-18, -14, 18, 14)
+        shellGrad.addColorStop(0, '#f97316')
+        shellGrad.addColorStop(0.4, '#fb7185')
+        shellGrad.addColorStop(1, '#facc15')
+        ctx.fillStyle = shellGrad
+
+        ctx.beginPath()
+        ctx.moveTo(0, -16)
+        ctx.lineTo(18, 0)
+        ctx.lineTo(8, 14)
+        ctx.lineTo(-8, 14)
+        ctx.lineTo(-18, 0)
+        ctx.closePath()
+        ctx.fill()
+
+        ctx.fillStyle = 'rgba(15,23,42,0.85)'
+        ctx.beginPath()
+        ctx.ellipse(0, -2, 6, 4, 0, 0, Math.PI * 2)
+        ctx.fill()
+
+        ctx.restore()
+    })
 
     ctx.save()
-    ctx.translate(planeX, planeY)
-    const bank = (flightGame.planeVy / 220)
-    ctx.rotate(bank * 0.4)
+    ctx.fillStyle = '#38bdf8'
+    shooterGame.bullets.forEach(b => {
+        ctx.beginPath()
+        ctx.roundRect(b.x - 2, b.y - 10, 4, 18, 2)
+        ctx.fill()
+    })
+    ctx.restore()
 
-    const bodyGrad = ctx.createLinearGradient(-22, 0, 28, 0)
-    bodyGrad.addColorStop(0, '#0f172a')
-    bodyGrad.addColorStop(0.4, '#38bdf8')
-    bodyGrad.addColorStop(1, '#fbbf24')
+    ctx.save()
+    ctx.fillStyle = '#fb7185'
+    shooterGame.enemyBullets.forEach(b => {
+        ctx.beginPath()
+        ctx.roundRect(b.x - 2, b.y - 6, 4, 12, 2)
+        ctx.fill()
+    })
+    ctx.restore()
 
-    ctx.fillStyle = bodyGrad
+    // Player ship – more readable top‑down spacecraft
+    const px = shooterGame.playerX
+    const py = shooterGame.playerY
+    ctx.save()
+    ctx.translate(px, py)
+
+    const shipGrad = ctx.createLinearGradient(0, -22, 0, 20)
+    shipGrad.addColorStop(0, '#e5f2ff')
+    shipGrad.addColorStop(0.35, '#38bdf8')
+    shipGrad.addColorStop(0.7, '#0ea5e9')
+    shipGrad.addColorStop(1, '#0f172a')
+    ctx.fillStyle = shipGrad
+
+    // Central fuselage
     ctx.beginPath()
-    ctx.moveTo(-22, 0)
-    ctx.quadraticCurveTo(-4, -10, 20, 0)
-    ctx.quadraticCurveTo(-4, 10, -22, 0)
+    ctx.moveTo(0, -22)        // nose
+    ctx.lineTo(10, -4)        // right shoulder
+    ctx.lineTo(8, 10)
+    ctx.lineTo(0, 20)         // tail
+    ctx.lineTo(-8, 10)
+    ctx.lineTo(-10, -4)       // left shoulder
     ctx.closePath()
     ctx.fill()
 
-    ctx.fillStyle = 'rgba(15,23,42,0.9)'
+    // Side wings
+    ctx.fillStyle = '#0f172a'
     ctx.beginPath()
-    ctx.ellipse(-6, -4, 7, 4, 0, 0, Math.PI * 2)
+    ctx.moveTo(-6, 2)
+    ctx.lineTo(-18, 6)
+    ctx.lineTo(-12, 14)
+    ctx.lineTo(-4, 10)
+    ctx.closePath()
     ctx.fill()
 
+    ctx.beginPath()
+    ctx.moveTo(6, 2)
+    ctx.lineTo(18, 6)
+    ctx.lineTo(12, 14)
+    ctx.lineTo(4, 10)
+    ctx.closePath()
+    ctx.fill()
+
+    // Cockpit
+    ctx.fillStyle = 'rgba(15,23,42,0.95)'
+    ctx.beginPath()
+    ctx.ellipse(0, -6, 6, 5, 0, 0, Math.PI * 2)
+    ctx.fill()
+
+    // Engine glow at the tail
+    const engineGrad = ctx.createRadialGradient(0, 20, 2, 0, 24, 10)
+    engineGrad.addColorStop(0, '#38bdf8')
+    engineGrad.addColorStop(1, 'rgba(56,189,248,0)')
+    ctx.fillStyle = engineGrad
+    ctx.beginPath()
+    ctx.ellipse(0, 24, 10, 6, 0, 0, Math.PI * 2)
+    ctx.fill()
+
+    ctx.restore()
+
+    ctx.save()
+    ctx.globalAlpha = 0.26
     ctx.fillStyle = '#38bdf8'
     ctx.beginPath()
-    ctx.moveTo(-10, 3)
-    ctx.lineTo(-2, 16)
-    ctx.lineTo(6, 3)
-    ctx.closePath()
-    ctx.fill()
-
-    ctx.restore()
-
-    ctx.save()
-    ctx.globalAlpha = 0.32
-    ctx.fillStyle = '#020617'
-    ctx.beginPath()
-    ctx.ellipse(planeX, planeY + 16, 34, 10, 0, 0, Math.PI * 2)
+    ctx.ellipse(px, py + 18, 22, 9, 0, 0, Math.PI * 2)
     ctx.fill()
     ctx.restore()
 
-    if (flightGame.crashed) {
-        ctx.fillStyle = 'rgba(15,23,42,0.78)'
-        ctx.fillRect(0, 0, width, height)
+    if (shooterGame.crashed) {
+        ctx.fillStyle = 'rgba(15,23,42,0.86)'
+        ctx.fillRect(0, 0, w, h)
         ctx.fillStyle = '#fee2e2'
-        ctx.font = '700 1.2rem "Sora", system-ui, -apple-system, BlinkMacSystemFont'
+        ctx.font = '700 1.1rem "Sora", system-ui, -apple-system, BlinkMacSystemFont'
         ctx.textAlign = 'center'
-        ctx.fillText('Crashed into the canyon', width / 2, height / 2 - 10)
+        ctx.fillText('Hull breach – run over', w / 2, h / 2 - 8)
         ctx.font = '400 0.85rem "Sora", system-ui, -apple-system, BlinkMacSystemFont'
         ctx.fillStyle = '#9ca3af'
-        ctx.fillText('Click to try again', width / 2, height / 2 + 16)
+        ctx.fillText('Press Enter to launch again', w / 2, h / 2 + 16)
     }
 }
 
-function updateFlightHud(crashed) {
-    const distanceEl = document.getElementById('flightDistance')
-    const statusEl = document.getElementById('flightStatus')
-    if (distanceEl) {
-        distanceEl.textContent = `${Math.floor(flightGame.distance)} m`
-    }
+function updateShooterHud() {
+    const scoreEl = document.getElementById('shooterScore')
+    const statusEl = document.getElementById('shooterStatus')
+    if (scoreEl) scoreEl.textContent = shooterGame.score.toString()
     if (statusEl) {
-        if (crashed || flightGame.crashed) {
-            statusEl.textContent = 'Crashed'
-        } else if (flightGame.speed > 220) {
-            statusEl.textContent = 'Fast'
+        if (shooterGame.crashed) {
+            statusEl.textContent = 'Destroyed'
+        } else if (shooterGame.shields <= 1) {
+            statusEl.textContent = 'Critical'
+        } else if (shooterGame.score > 80) {
+            statusEl.textContent = 'Onslaught'
+        } else if (shooterGame.score > 40) {
+            statusEl.textContent = 'Engaged'
         } else {
-            statusEl.textContent = 'Cruising'
+            statusEl.textContent = 'Ready'
         }
     }
 }
@@ -505,8 +599,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Kick off continuous blob animation loop (for cursor-based physics)
     requestAnimationFrame(animateBlob)
 
-    // Initialise Night Flight mini-game
-    initFlightGame()
+    // Initialise Starline space shooter
+    initShooterGame()
 })
 
 // Page loaded
