@@ -56,6 +56,19 @@ function moveBackground(event) {
         const boolInt = isOdd ? -1 : 1
         shapes[i].style.transform = `translate(${x * boolInt}px, ${y * boolInt}px) rotate(${x * boolInt * 0.05}deg)`
     }
+
+    // Subtle tilt for the hero orb to enhance the 3D feel
+    const orb = document.querySelector('.hero-orb')
+    if (orb) {
+        const xPercent = (event.clientX / window.innerWidth) - 0.5
+        const yPercent = (event.clientY / window.innerHeight) - 0.5
+
+        const tiltX = xPercent * 16
+        const tiltY = -yPercent * 12
+
+        orb.style.setProperty('--tiltX', `${tiltX}deg`)
+        orb.style.setProperty('--tiltY', `${tiltY}deg`)
+    }
 }
 
 // Navbar scroll effect
