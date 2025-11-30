@@ -410,41 +410,47 @@ function renderFlightScene() {
     ctx.save()
     ctx.translate(planeX, planeY)
     const bank = (flightGame.planeVy / 220)
-    ctx.rotate(bank * 0.4)
+    ctx.rotate(bank * 0.35)
 
-    const bodyGrad = ctx.createLinearGradient(-22, 0, 28, 0)
-    bodyGrad.addColorStop(0, '#0f172a')
-    bodyGrad.addColorStop(0.4, '#38bdf8')
-    bodyGrad.addColorStop(1, '#fbbf24')
+    // Compact jet made from simple triangles – slightly larger
+    const jetGrad = ctx.createLinearGradient(-12, 0, 16, 0)
+    jetGrad.addColorStop(0, '#020617')
+    jetGrad.addColorStop(1, '#38bdf8')
+    ctx.fillStyle = jetGrad
 
-    ctx.fillStyle = bodyGrad
+    // Main body
     ctx.beginPath()
-    ctx.moveTo(-22, 0)
-    ctx.quadraticCurveTo(-4, -10, 20, 0)
-    ctx.quadraticCurveTo(-4, 10, -22, 0)
+    ctx.moveTo(16, 0)    // nose (further forward)
+    ctx.lineTo(-10, -6)  // tail top
+    ctx.lineTo(-10, 6)   // tail bottom
     ctx.closePath()
     ctx.fill()
 
-    ctx.fillStyle = 'rgba(15,23,42,0.9)'
+    // Small top wing
+    ctx.fillStyle = '#0f172a'
     ctx.beginPath()
-    ctx.ellipse(-6, -4, 7, 4, 0, 0, Math.PI * 2)
-    ctx.fill()
-
-    ctx.fillStyle = '#38bdf8'
-    ctx.beginPath()
-    ctx.moveTo(-10, 3)
-    ctx.lineTo(-2, 16)
-    ctx.lineTo(6, 3)
+    ctx.moveTo(-1, 0)
+    ctx.lineTo(-9, -9)
+    ctx.lineTo(-3, -3)
     ctx.closePath()
     ctx.fill()
+
+    // Tiny cockpit highlight
+    ctx.strokeStyle = 'rgba(226,232,240,0.7)'
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.moveTo(5, -1.8)
+    ctx.lineTo(0, -0.6)
+    ctx.stroke()
 
     ctx.restore()
 
+    // Tiny shadow under the jet
     ctx.save()
-    ctx.globalAlpha = 0.32
+    ctx.globalAlpha = 0.22
     ctx.fillStyle = '#020617'
     ctx.beginPath()
-    ctx.ellipse(planeX, planeY + 16, 34, 10, 0, 0, Math.PI * 2)
+    ctx.ellipse(planeX, planeY + 11, 20, 6, 0, 0, Math.PI * 2)
     ctx.fill()
     ctx.restore()
 
