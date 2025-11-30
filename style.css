@@ -823,7 +823,8 @@ nav .container {
 /* ==================== SECTIONS ==================== */
 section {
   position: relative;
-  z-index: 10;
+  /* let sections share the root stacking context so the fixed nav can sit above them */
+  z-index: auto;
   padding: 4.5rem 2rem;
   background: transparent;
   scroll-margin-top: 128px;
