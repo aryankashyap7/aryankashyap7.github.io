@@ -19,46 +19,81 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css">
     </head>
     <body>
+        <!-- Premium Loading Screen -->
+        <div class="loader">
+            <div class="loader__content">
+                <div class="loader__spinner"></div>
+                <p class="loader__text">Loading Experience...</p>
+            </div>
+        </div>
+
         <section id="landing-page" onmousemove="moveBackground(event)">
             <nav>
-                <figure>
-                    <img id="personal-logo" src="./assets/logo.svg" alt="" />
-                </figure>
-                <ul class="nav__link--list">
-                    <li class="nav__link" onclick="toggleModal()">
-                        <a href="#"  class="nav__link--anchor link__hover-effect link__hover-effect--black">About</a>
-                    </li>
-                    <li class="nav__link">
-                        <a href="#projects" class="nav__link--anchor link__hover-effect link__hover-effect--black">Projects</a>
-                    </li>
-                    <li class="nav__link" onclick="toggleModal()">
-                        <a href="#" class="nav__link--anchor link__hover-effect link__hover-effect--black">Contact</a>
-                    </li>
-                    <li class="nav__link click">
-                        <a href="#" class="nav__link--anchor link__hover-effect">
-                            <i class="fa-solid fa-moon" onclick="toggleContrast()"></i>
-                        </a>
-                    </li>
-                </ul>
+                <div class="container">
+                    <figure>
+                        <img id="personal-logo" src="./assets/logo.svg" alt="Aryan Kashyap Logo" />
+                    </figure>
+                    <ul class="nav__link--list">
+                        <li class="nav__link" onclick="toggleModal()">
+                            <a href="#" class="nav__link--anchor">About</a>
+                        </li>
+                        <li class="nav__link">
+                            <a href="#experience" class="nav__link--anchor">Experience</a>
+                        </li>
+                        <li class="nav__link">
+                            <a href="#projects" class="nav__link--anchor">Projects</a>
+                        </li>
+                        <li class="nav__link">
+                            <a href="#skills" class="nav__link--anchor">Skills</a>
+                        </li>
+                        <li class="nav__link" onclick="toggleModal()">
+                            <a href="#" class="nav__link--anchor">Contact</a>
+                        </li>
+                        <li class="nav__link click">
+                            <a href="#" class="nav__link--anchor">
+                                <i class="fa-solid fa-circle-half-stroke" onclick="toggleContrast()"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </nav>
 
             <header class="header">
                 <div class="header__content">
-                    <h1 class="title">Hey</h1>
-                    <h1 class="title accent-color">I'm Aryan.</h1>
+                    <h1 class="title">Hey, I'm Aryan</h1>
                     <p class="header__para">
-                        I'm a <b class="accent-color">Machine Learning Engineer</b> with a strong passion for developing technologies that solve real-world problems. 
-                        <br />
-                        Here's a bit <b class="accent-color accent-color--about-me" onclick="toggleModal()">about me</b>.
+                        I'm a <b class="accent-color">Software Developer & ML Engineer</b> who loves building reliable systems around intelligent models. 
+                        I work across backend, cloud, and ML to ship production-grade APIs, automation, and analytics at scale.
+                        <br /><br />
+                        Recently I've been modernising retail infrastructure at Aptos Retail and building data-heavy SaaS at EasyInsights.
+                        Want to know more? Check out my <b class="accent-color accent-color--about-me" onclick="toggleModal()">experience & stack</b>.
                     </p>
                     <div class="social__list">
-                        <a href="https://github.com/aryankashyap7" target="_blank" class="social__link click"><i class="fa-brands fa-github"></i></a>
-                        <a href="https://www.linkedin.com/in/aryankashyap/" target="_blank" class="social__link click"
-                            ><i class="fa-brands fa-linkedin-in"></i
-                        ></a>
-                        <a href="./assets/Aryan Kashyap Resume.pdf" target="_blank" class="social__link click"
-                            ><i class="fa fa-file-pdf-o"></i
-                        ></a>
+                        <a href="https://github.com/aryankashyap7" target="_blank" class="social__link click" aria-label="GitHub">
+                            <i class="fa-brands fa-github"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/in/aryankashyap/" target="_blank" class="social__link click" aria-label="LinkedIn">
+                            <i class="fa-brands fa-linkedin-in"></i>
+                        </a>
+                        <a href="./assets/Aryan Kashyap Resume.pdf" target="_blank" class="social__link click" aria-label="Resume">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="hero__terminal" aria-hidden="true">
+                    <div class="hero__terminal-header">
+                        <span class="hero__terminal-dot hero__terminal-dot--red"></span>
+                        <span class="hero__terminal-dot hero__terminal-dot--amber"></span>
+                        <span class="hero__terminal-dot hero__terminal-dot--green"></span>
+                        <span class="hero__terminal-title">aryan_k@ml-lab:~</span>
+                    </div>
+                    <div class="hero__terminal-body">
+                        <p><span class="prompt">➜</span> <span class="cmd">whoami</span></p>
+                        <p><span class="result">Software Developer L1 @ Aptos Retail · ex EasyInsights · ex Schlumberger</span></p>
+                        <p><span class="prompt">➜</span> <span class="cmd">focus</span></p>
+                        <p><span class="result">ML systems · backend & APIs · cloud & DevOps automation</span></p>
+                        <p><span class="prompt">➜</span> <span class="cmd">status --open-to</span></p>
+                        <p><span class="result">high‑impact engineering roles · infra for intelligent products</span></p>
                     </div>
                 </div>
             </header>
@@ -77,79 +112,83 @@
         <div class="modal">
             <div class="modal__half modal__about">
                 <h3 class="modal__title modal__title--about">Here's a bit about me</h3>
-                <h4 class="modal__sub-title modal__sub-title--about">Frontend Software Engineer</h4>
+                <h4 class="modal__sub-title modal__sub-title--about">Software Developer & ML Engineer</h4>
                 <p class="modal__para">
-                    I'm a 20-year old <span class="accent-color">frontend software engineer</span> with a strong passion for developing websites with great
-                    <span class="accent-color">user experiences.</span> <br />
-                    I currently work on extremely difficul engineering problems and learn from a team consisting of some of the most
-                    <span class="accent-color">talented</span> and <span class="accent-color">experienced</span>
-                    software engineers every day.
+                    I’m currently a <span class="accent-color">Software Developer L1 at Aptos Retail</span>, re‑architecting high‑traffic order and product APIs,
+                    modernising legacy services, and squeezing cost and performance out of a large AWS microservices estate.
+                    Before that, I worked as a <span class="accent-color">Full Stack Developer at EasyInsights</span> on data‑heavy SaaS,
+                    and as a <span class="accent-color">QA Automation Engineer at Schlumberger</span> building robust test automation.
                 </p>
-                <!-- 8 PROGRAMMING LANGUAGES -->
+                <p class="modal__para">
+                    My work sits at the intersection of <span class="accent-color">ML, backend engineering, and cloud infrastructure</span> —
+                    from ML‑driven products to API design, observability, and regression frameworks that keep systems safe to change.
+                    I studied <span class="accent-color">Computer Science with specialization in AIML at VIT Bhopal</span> (CGPA 8.56), where I focused on applied AI.
+                </p>
+                <!-- ML & TECH STACK -->
                 <div class="modal__languages">
                     <figure class="modal__language">
                         <img
                             class="modal__language--img"
-                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg"
+                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg"
                             alt=""
                         />
-                        <span class="language__name">HTML5</span>
+                        <span class="language__name">Python</span>
                     </figure>
                     <figure class="modal__language">
                         <img
                             class="modal__language--img"
-                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg"
+                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg"
                             alt=""
                         />
-                        <span class="language__name">CSS3</span>
+                        <span class="language__name">TensorFlow</span>
                     </figure>
                     <figure class="modal__language">
                         <img
                             class="modal__language--img"
-                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"
+                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pytorch/pytorch-original.svg"
                             alt=""
                         />
-                        <span class="language__name">JavaScript</span>
+                        <span class="language__name">PyTorch</span>
                     </figure>
                     <figure class="modal__language">
                         <img
                             class="modal__language--img"
-                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
+                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/scikitlearn/scikitlearn-original.svg"
                             alt=""
+                        />
+                        <span class="language__name">Scikit-Learn</span>
+                    </figure>
+                    <figure class="modal__language">
+                        <img
+                            class="modal__language--img"
+                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-original.svg"
+                            alt=""
+                        />
+                        <span class="language__name">Pandas</span>
+                    </figure>
+                    <figure class="modal__language">
+                        <img
+                        class="modal__language--img"
+                        src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/numpy/numpy-original.svg"
+                        alt=""
+                        />
+                        <span class="language__name">NumPy</span>
+                    </figure>
+                    <figure class="modal__language">
+                        <img
+                        class="modal__language--img"
+                        src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
+                        alt=""
                         />
                         <span class="language__name">React.js</span>
                     </figure>
                     <figure class="modal__language">
                         <img
                             class="modal__language--img"
-                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/laravel/laravel-plain.svg"
+                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg"
                             alt=""
                         />
-                        <span class="language__name">Laravel</span>
-                    </figure>
-                    <figure class="modal__language">
-                        <img
-                        class="modal__language--img"
-                        src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg"
-                        alt=""
-                        />
-                        <span class="language__name">TailwindCSS</span>
-                    </figure>
-                    <figure class="modal__language">
-                        <img
-                        class="modal__language--img"
-                        src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg"
-                        alt=""
-                        />
-                        <span class="language__name">BootstrapCSS</span>
-                    </figure>
-                    <figure class="modal__language">
-                        <img
-                            class="modal__language--img"
-                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg"
-                            alt=""
-                        />
-                        <span class="language__name">Next.js</span>
+                        <span class="language__name">AWS</span>
                     </figure>
                 </div>
             </div>
@@ -171,7 +210,7 @@
                         <textarea type="text" class="input" name="message"></textarea>
                     </div>
                     <button id="contact__submit" class="form__submit">
-                        Send it my way!
+                        <span>Send it my way!</span>
                     </button>
                 </form>
                 <div class="modal__overlay modal__overlay--loading">
@@ -195,27 +234,164 @@
         <img src="./assets/circle.svg" class="shape shape--7">
         <img src="./assets/semi circle.svg" class="shape shape--8">
 
+        <section id="experience">
+            <div class="container">
+                <div class="row">
+                    <h1 class="section__title">Experience & <span class="accent-color">education</span></h1>
+                    <div class="experience">
+                        <div class="experience__column">
+                            <h2 class="experience__heading">Experience</h2>
+
+                            <article class="experience__item">
+                                <h3 class="experience__role">Software Developer L1 · Aptos Retail</h3>
+                                <p class="experience__meta">Bengaluru · Nov 2024 – Present</p>
+                                <ul class="experience__bullets">
+                                    <li>Re‑architected order / product APIs handling 300K+ monthly requests, improving client response times.</li>
+                                    <li>Optimised AWS infrastructure, saving <span class="accent-color">$400/day</span> through better microservice and database design.</li>
+                                    <li>Led regression framework and SQL Server → PostgreSQL migration across a large OMS codebase.</li>
+                                </ul>
+                            </article>
+
+                            <article class="experience__item">
+                                <h3 class="experience__role">Full Stack Developer · EasyInsights</h3>
+                                <p class="experience__meta">New Delhi · Mar 2024 – Nov 2024</p>
+                                <ul class="experience__bullets">
+                                    <li>Optimised a marketing analytics SaaS platform by ~75% via ETL and data workflow improvements.</li>
+                                    <li>Integrated REST, GraphQL and gRPC APIs, plus Shopify, Salesforce and WordPress for automated data flows.</li>
+                                    <li>Built attribution models and dashboards that helped clients improve campaign ROI and decision speed.</li>
+                                </ul>
+                            </article>
+
+                            <article class="experience__item">
+                                <h3 class="experience__role">QA Automation Engineer · Schlumberger</h3>
+                                <p class="experience__meta">Navi Mumbai · May 2023 – Jun 2023</p>
+                                <ul class="experience__bullets">
+                                    <li>Automated complex metadata validation, cutting manual effort by 78% and significantly improving accuracy.</li>
+                                    <li>Added 12+ automated test cases into CI/CD, improving early bug detection in critical workflows.</li>
+                                </ul>
+                            </article>
+                        </div>
+
+                        <div class="experience__column">
+                            <h2 class="experience__heading">Education</h2>
+                            <article class="experience__item">
+                                <h3 class="experience__role">B.Tech · CSE (AIML)</h3>
+                                <p class="experience__meta">Vellore Institute of Technology, Bhopal · 2020 – 2024</p>
+                                <p class="experience__meta">CGPA: 8.56</p>
+                            </article>
+
+                            <h2 class="experience__heading">Highlights</h2>
+                            <ul class="experience__tags">
+                                <li>Dean’s List (2020–2024)</li>
+                                <li>Winner · VIT Tech Fest Hackathon 2023</li>
+                                <li>300+ problems solved on LeetCode & Codeforces</li>
+                                <li>AWS Cloud Practitioner · Google Cloud Digital Leader</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="projects">
             <div class="container">
                 <div class="row">
-                    <h1 class="section__title">Here are some of my <span class="accent-color">projects</span></h1>
+                    <h1 class="section__title">Some <span class="accent-color">featured projects</span></h1>
                     <ul class="project__list">
-                        <!-- 1. Facial Image Classification -->
+                        <!-- 1. InfraSage -->
                         <li class="project">
                             <div class="project__wrapper">
-                                <img src="./assets/FIC.gif" class="project__img" alt="" />
+                                <div class="project__img project__img--placeholder"></div>
+                                <div class="project__wrapper--bg"></div>
+                                <div class="project__description">
+                                    <h3 class="project__description--title">InfraSage · AI Assistant for DevOps Automation</h3>
+                                    <h4 class="project__description--sub-title">
+                                        <i class="fa-solid fa-robot"></i> LLM‑driven DevOps orchestrator
+                                    </h4>
+                                    <p class="project__description--para">
+                                        ▹ Multi‑modal AI assistant for infrastructure automation using Llama 4 APIs and an MVP‑style orchestrator. <br />
+                                        ▹ Hybrid RAG with Qdrant over Jira, Confluence and Bitbucket for context‑aware decisions. <br />
+                                        ▹ Adaptive command engine to open tickets, deploy infra and monitor services autonomously. <br />
+                                        ▹ Intelligent fault diagnosis and root‑cause analysis, reducing MTTR for incidents. <br />
+                                    </p>
+                                    <div class="project__description--links">
+                                        <a href="#" class="project__description--link">
+                                            <i class="fa-brands fa-github"></i>
+                                        </a>
+                                        <a href="#" class="project__description--link">
+                                            <i class="fa-solid fa-link"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <!-- 2. Translate AI -->
+                        <li class="project">
+                            <div class="project__wrapper">
+                                <div class="project__img project__img--placeholder"></div>
+                                <div class="project__wrapper--bg"></div>
+                                <div class="project__description">
+                                    <h3 class="project__description--title">Translate AI · Universal Translation Engine</h3>
+                                    <h4 class="project__description--sub-title">
+                                        <i class="devicon-python-plain"></i> Hybrid LLM + MT pipeline
+                                    </h4>
+                                    <p class="project__description--para">
+                                        ▹ End‑to‑end pipeline for parsing and translating structured documents (XML, JSON, CSV, PDF). <br />
+                                        ▹ Hybrid LLM + Amazon Translate stack with batching, retries and concurrency for 65K+ strings. <br />
+                                        ▹ Back‑translation similarity checks and LLM‑based QA to preserve semantics across languages. <br />
+                                    </p>
+                                    <div class="project__description--links">
+                                        <a href="#" class="project__description--link">
+                                            <i class="fa-brands fa-github"></i>
+                                        </a>
+                                        <a href="#" class="project__description--link">
+                                            <i class="fa-solid fa-link"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- 3. Agrisense Smart Harvest -->
+                        <li class="project">
+                            <div class="project__wrapper">
+                                <div class="project__img project__img--placeholder"></div>
+                                <div class="project__wrapper--bg"></div>
+                                <div class="project__description">
+                                    <h3 class="project__description--title">Agrisense Smart Harvest</h3>
+                                    <h4 class="project__description--sub-title">
+                                        <i class="fa-solid fa-leaf"></i> ML‑driven precision agriculture
+                                    </h4>
+                                    <p class="project__description--para">
+                                        ▹ Computer‑vision based crop monitoring with yield prediction and disease detection at field scale. <br />
+                                        ▹ Recommendation system for interventions based on real‑time crop health signals. <br />
+                                        ▹ Mobile‑responsive farmer dashboard with multilingual support and offline‑first UX for rural usage. <br />
+                                    </p>
+                                    <div class="project__description--links">
+                                        <a href="#" class="project__description--link">
+                                            <i class="fa-brands fa-github"></i>
+                                        </a>
+                                        <a href="#" class="project__description--link">
+                                            <i class="fa-solid fa-link"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- Earlier ML work -->
+                        <li class="project">
+                            <div class="project__wrapper">
+                                <img src="./assets/FIC.gif" class="project__img" alt="Facial Image Classification demo" />
                                 <div class="project__wrapper--bg"></div>
                                 <div class="project__description">
                                     <h3 class="project__description--title">Facial Image Classification</h3>
                                     <h4 class="project__description--sub-title">
-                                        <i class="fa-solid fa-robot"></i> SVM Classifier
+                                        <i class="fa-solid fa-robot"></i> Classic ML experimentation
                                     </h4>
                                     <p class="project__description--para">
-                                        An Facial Image Classification that uses a Machine Learning model to classify images of faces into 5 different categories.<br><br>
-                                        ▹ Use of Harcascade Classifier to detect faces in images <br />
-                                        ▹ Fine tuning of SVM Classifier to achieve 97% accuracy <br />
-                                        ▹ Flask API to serve the model <br />
-                                        ▹ Deployment on Amazon Web Services <br />
+                                        ▹ SVM‑based facial image classifier with Haar cascade for face detection and model fine‑tuning. <br />
+                                        ▹ Flask API wrapper and AWS deployment as an early ML productionisation exercise. <br />
                                     </p>
                                     <div class="project__description--links">
                                         <a href="https://github.com/aryankashyap7/Facial-Image-Classification" class="project__description--link">
@@ -228,21 +404,19 @@
                                 </div>
                             </div>
                         </li>
-                        <!-- 2. Real Estate Price Detector -->
+
                         <li class="project">
                             <div class="project__wrapper">
-                                <img src="./assets/REPP.png" class="project__img" alt="" />
+                                <img src="./assets/REPP.png" class="project__img" alt="Real Estate Price Predictor" />
                                 <div class="project__wrapper--bg"></div>
                                 <div class="project__description">
                                     <h3 class="project__description--title">Real Estate Price Detector</h3>
                                     <h4 class="project__description--sub-title">
-                                        <i class="devicon-python-plain"></i> Python
+                                        <i class="devicon-python-plain"></i> Early regression project
                                     </h4>
                                     <p class="project__description--para">
-                                        A Real Estate Price Detector that uses a Machine Learning model to predict the price of a house based on various features.<br><br>
-                                        ▹ Use of Linear Regression to predict the price of a house <br />
-                                        ▹ Use of GridSearchCV to fine tune the model <br />
-                                        ▹ Use of Flask API to serve the model <br />
+                                        ▹ Supervised learning pipeline for housing price prediction with feature engineering and GridSearchCV. <br />
+                                        ▹ Exposed through a lightweight Flask API as an introduction to serving ML models. <br />
                                     </p>
                                     <div class="project__description--links">
                                         <a href="https://github.com/aryankashyap7/Real-Estate-Price-Predictor" class="project__description--link">
@@ -286,71 +460,71 @@
         <section id="skills">
             <div class="container">
                 <div class="row">
-                    <h1 class="section__title">Here are some of my <span class="accent-color">web dev skills</span></h1>
+                    <h1 class="section__title">My <span class="accent-color">ML & AI</span> tech stack</h1>
                     <div class="skills__languages">
                         <figure class="skills__language">
                             <img
                                 class="skills__language--img"
-                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg"
                                 alt=""
                             />
-                            <span class="language__name">HTML5</span>
+                            <span class="language__name">Python</span>
                         </figure>
                         <figure class="skills__language">
                             <img
                                 class="skills__language--img"
-                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg"
                                 alt=""
                             />
-                            <span class="language__name">CSS3</span>
+                            <span class="language__name">TensorFlow</span>
                         </figure>
                         <figure class="skills__language">
                             <img
                                 class="skills__language--img"
-                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pytorch/pytorch-original.svg"
                                 alt=""
                             />
-                            <span class="language__name">JavaScript</span>
+                            <span class="language__name">PyTorch</span>
                         </figure>
                         <figure class="skills__language">
                             <img
                                 class="skills__language--img"
-                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/scikitlearn/scikitlearn-original.svg"
                                 alt=""
                             />
-                            <span class="language__name">React.js</span>
+                            <span class="language__name">Scikit-Learn</span>
                         </figure>
                         <figure class="skills__language">
                             <img
                                 class="skills__language--img"
-                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/laravel/laravel-plain.svg"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-original.svg"
                                 alt=""
                             />
-                            <span class="language__name">Laravel</span>
+                            <span class="language__name">Pandas</span>
                         </figure>
                         <figure class="skills__language">
                             <img
                             class="skills__language--img"
-                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg"
+                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/numpy/numpy-original.svg"
                             alt=""
                             />
-                            <span class="language__name">TailwindCSS</span>
+                            <span class="language__name">NumPy</span>
                         </figure>
                         <figure class="skills__language">
                             <img
                             class="skills__language--img"
-                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg"
+                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jupyter/jupyter-original.svg"
                             alt=""
                             />
-                            <span class="language__name">BootstrapCSS</span>
+                            <span class="language__name">Jupyter</span>
                         </figure>
                         <figure class="skills__language">
                             <img
                                 class="skills__language--img"
-                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/opencv/opencv-original.svg"
                                 alt=""
                             />
-                            <span class="language__name">Next.js</span>
+                            <span class="language__name">OpenCV</span>
                         </figure>
                     </div>
 
@@ -390,15 +564,47 @@
                         </figure>
                     </div>
 
-                    <h1 class="section__title">Other useful <span class="accent-color">tech</span> I know well</h1>
+                    <h1 class="section__title">Web development & <span class="accent-color">other tools</span></h1>
                     <div class="skills__languages">
                         <figure class="skills__language">
                             <img
                                 class="skills__language--img"
-                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
                                 alt=""
                             />
-                            <span class="language__name">VS Code</span>
+                            <span class="language__name">React.js</span>
+                        </figure>
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg"
+                                alt=""
+                            />
+                            <span class="language__name">Next.js</span>
+                        </figure>
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flask/flask-original.svg"
+                                alt=""
+                            />
+                            <span class="language__name">Flask</span>
+                        </figure>
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg"
+                                alt=""
+                            />
+                            <span class="language__name">AWS</span>
+                        </figure>
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg"
+                                alt=""
+                            />
+                            <span class="language__name">Docker</span>
                         </figure>
                         <figure class="skills__language">
                             <img
@@ -411,18 +617,18 @@
                         <figure class="skills__language">
                             <img
                                 class="skills__language--img"
-                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
-                                alt=""
-                            />
-                            <span class="language__name">GitHub</span>
-                        </figure>
-                        <figure class="skills__language">
-                            <img
-                                class="skills__language--img"
                                 src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg"
                                 alt=""
                             />
                             <span class="language__name">Linux</span>
+                        </figure>
+                        <figure class="skills__language">
+                            <img
+                                class="skills__language--img"
+                                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg"
+                                alt=""
+                            />
+                            <span class="language__name">VS Code</span>
                         </figure>
                     </div>
                 </div>
