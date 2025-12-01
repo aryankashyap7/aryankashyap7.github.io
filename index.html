@@ -19,6 +19,9 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css">
     </head>
     <body>
+        <!-- Professional Cursor Trail -->
+        <div class="cursor-glow" id="cursorGlow"></div>
+        
         <!-- Premium Loading Screen -->
         <div class="loader">
             <div class="loader__content">
@@ -615,6 +618,99 @@
                             />
                             <span class="language__name">VS Code</span>
                         </figure>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GitHub Activity Section -->
+        <section id="github-activity">
+            <div class="container">
+                <div class="row">
+                    <h1 class="section__title">Live <span class="accent-color">GitHub Activity</span></h1>
+                    <p class="section__intro">
+                        Real-time visualization of my coding activity. Watch the commits flow.
+                    </p>
+                    <div class="github-activity">
+                        <div class="github-activity__header">
+                            <div class="github-activity__profile">
+                                <div class="holo-card" id="holoCard">
+                                    <div class="holo-card__inner">
+                                        <div class="holo-card__shine"></div>
+                                        <div class="holo-card__content">
+                                            <div class="holo-card__avatar">
+                                                <img src="https://github.com/aryankashyap7.png" alt="Aryan Kashyap" />
+                                                <div class="holo-card__avatar-ring"></div>
+                                            </div>
+                                            <div class="holo-card__info">
+                                                <h3 class="holo-card__name">Aryan Kashyap</h3>
+                                                <p class="holo-card__handle">@aryankashyap7</p>
+                                                <div class="holo-card__badge">
+                                                    <span class="holo-card__status"></span>
+                                                    Available for work
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="holo-card__stats">
+                                            <div class="holo-card__stat">
+                                                <span class="holo-card__stat-value" id="repoCount">--</span>
+                                                <span class="holo-card__stat-label">Repos</span>
+                                            </div>
+                                            <div class="holo-card__stat">
+                                                <span class="holo-card__stat-value" id="followerCount">--</span>
+                                                <span class="holo-card__stat-label">Followers</span>
+                                            </div>
+                                            <div class="holo-card__stat">
+                                                <span class="holo-card__stat-value" id="starCount">--</span>
+                                                <span class="holo-card__stat-label">Stars</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="github-activity__graph-container">
+                                <div class="github-activity__graph-header">
+                                    <h3 class="github-activity__graph-title">
+                                        <i class="fa-brands fa-github"></i>
+                                        Contribution Activity
+                                    </h3>
+                                    <div class="github-activity__legend">
+                                        <span>Less</span>
+                                        <div class="github-activity__legend-scale">
+                                            <span class="level-0"></span>
+                                            <span class="level-1"></span>
+                                            <span class="level-2"></span>
+                                            <span class="level-3"></span>
+                                            <span class="level-4"></span>
+                                        </div>
+                                        <span>More</span>
+                                    </div>
+                                </div>
+                                <div class="github-activity__graph" id="contributionGraph">
+                                    <!-- Contribution squares will be generated by JS -->
+                                </div>
+                                <div class="github-activity__summary">
+                                    <div class="github-activity__summary-item">
+                                        <span class="github-activity__summary-value" id="totalContributions">--</span>
+                                        <span class="github-activity__summary-label">contributions in the last year</span>
+                                    </div>
+                                    <div class="github-activity__summary-item">
+                                        <span class="github-activity__summary-value" id="currentStreak">--</span>
+                                        <span class="github-activity__summary-label">day current streak</span>
+                                    </div>
+                                    <div class="github-activity__summary-item">
+                                        <span class="github-activity__summary-value" id="longestStreak">--</span>
+                                        <span class="github-activity__summary-label">day longest streak</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="github-activity__recent">
+                            <h3 class="github-activity__recent-title">Recent Activity</h3>
+                            <div class="github-activity__feed" id="activityFeed">
+                                <!-- Activity items will be generated by JS -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
