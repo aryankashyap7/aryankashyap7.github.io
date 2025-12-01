@@ -171,6 +171,7 @@ const asteroidGame = {
     shieldActive: false,
     shieldTimer: 0,
     difficulty: 1,
+    cheatMode: false,
     
     // Player
     ship: { x: 0, y: 0, vx: 0, vy: 0, angle: 0, trail: [] },
@@ -240,12 +241,31 @@ function initAsteroidGame() {
                 e.preventDefault()
                 break
             case ' ':
-                // Space for shield
-                if (asteroidGame.running && asteroidGame.shields > 0 && !asteroidGame.shieldActive) {
+                // Space for shield OR restart game when game over
+                if (asteroidGame.gameOver) {
+                    resetAsteroidGame()
+                    startAsteroidGame()
+                } else if (asteroidGame.running && (asteroidGame.shields > 0 || asteroidGame.cheatMode) && !asteroidGame.shieldActive) {
                     activateShield()
                 }
                 e.preventDefault()
                 break
+        }
+        
+        // Check Caps Lock state on any keydown for cheat toggle
+        const capsLockOn = e.getModifierState('CapsLock')
+        if (capsLockOn && !asteroidGame.cheatMode) {
+            // Activate cheat mode
+            asteroidGame.cheatMode = true
+            asteroidGame.shields = 999
+            updateShieldDisplay()
+            showCheatNotification(true)
+        } else if (!capsLockOn && asteroidGame.cheatMode) {
+            // Deactivate cheat mode
+            asteroidGame.cheatMode = false
+            asteroidGame.shields = 3
+            updateShieldDisplay()
+            showCheatNotification(false)
         }
     })
 
@@ -300,9 +320,106 @@ function initAsteroidGame() {
         })
     }
 
+    // Mobile touch controls
+    initMobileControls()
+
     initStars()
     updateHUD()
     requestAnimationFrame(stepAsteroidGame)
+}
+
+function showCheatNotification(activated) {
+    // Remove any existing notification
+    const existing = document.querySelector('.cheat-notification')
+    if (existing) existing.remove()
+    
+    const notification = document.createElement('div')
+    notification.className = 'cheat-notification'
+    
+    if (activated) {
+        notification.classList.add('cheat-notification--activated')
+        notification.innerHTML = `
+            <span class="cheat-notification__icon">🔓</span>
+            <span class="cheat-notification__text">CHEAT ACTIVATED: Unlimited Shields!</span>
+        `
+    } else {
+        notification.classList.add('cheat-notification--deactivated')
+        notification.innerHTML = `
+            <span class="cheat-notification__icon">🔒</span>
+            <span class="cheat-notification__text">CHEAT DEACTIVATED: Back to normal</span>
+        `
+    }
+    
+    document.body.appendChild(notification)
+    
+    setTimeout(() => {
+        notification.classList.add('visible')
+    }, 10)
+    
+    setTimeout(() => {
+        notification.classList.remove('visible')
+        setTimeout(() => notification.remove(), 300)
+    }, 2000)
+}
+
+function initMobileControls() {
+    const controlsContainer = document.getElementById('mobileControls')
+    if (!controlsContainer) return
+    
+    // Show controls on touch devices
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+        controlsContainer.classList.add('visible')
+    }
+    
+    const buttons = {
+        up: document.getElementById('btnUp'),
+        down: document.getElementById('btnDown'),
+        left: document.getElementById('btnLeft'),
+        right: document.getElementById('btnRight'),
+        shield: document.getElementById('btnShield')
+    }
+    
+    // Handle touch events for directional buttons
+    Object.entries(buttons).forEach(([key, btn]) => {
+        if (!btn) return
+        
+        if (key === 'shield') {
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault()
+                if (!asteroidGame.started && !asteroidGame.gameOver) {
+                    startAsteroidGame()
+                } else if (asteroidGame.gameOver) {
+                    resetAsteroidGame()
+                    startAsteroidGame()
+                } else if (asteroidGame.running && (asteroidGame.shields > 0 || asteroidGame.cheatMode) && !asteroidGame.shieldActive) {
+                    activateShield()
+                }
+            })
+        } else {
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault()
+                asteroidGame.keys[key] = true
+                btn.classList.add('active')
+                
+                // Start game on first touch
+                if (!asteroidGame.started && !asteroidGame.gameOver) {
+                    startAsteroidGame()
+                }
+            })
+            
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault()
+                asteroidGame.keys[key] = false
+                btn.classList.remove('active')
+            })
+            
+            btn.addEventListener('touchcancel', (e) => {
+                e.preventDefault()
+                asteroidGame.keys[key] = false
+                btn.classList.remove('active')
+            })
+        }
+    })
 }
 
 function resizeAsteroidCanvas() {
@@ -351,7 +468,7 @@ function startAsteroidGame() {
 
 function resetAsteroidGame() {
     asteroidGame.score = 0
-    asteroidGame.shields = 3
+    asteroidGame.shields = asteroidGame.cheatMode ? 999 : 3
     asteroidGame.shieldActive = false
     asteroidGame.shieldTimer = 0
     asteroidGame.difficulty = 1
@@ -379,7 +496,9 @@ function resetAsteroidGame() {
 }
 
 function activateShield() {
-    asteroidGame.shields--
+    if (!asteroidGame.cheatMode) {
+        asteroidGame.shields--
+    }
     asteroidGame.shieldActive = true
     asteroidGame.shieldTimer = 1.5 // 1.5 seconds of invincibility
     asteroidGame.flashAlpha = 0.4

@@ -2848,6 +2848,179 @@ nav,
   }
 }
 
+/* ==================== CHEAT NOTIFICATION ==================== */
+.cheat-notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  z-index: 10000;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+}
+
+.cheat-notification--activated {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.95), rgba(245, 158, 11, 0.95));
+  color: #000;
+  box-shadow: 0 8px 32px rgba(251, 191, 36, 0.4), 0 0 60px rgba(251, 191, 36, 0.2);
+}
+
+.cheat-notification--deactivated {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(185, 28, 28, 0.95));
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(239, 68, 68, 0.4), 0 0 60px rgba(239, 68, 68, 0.2);
+}
+
+.cheat-notification.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.cheat-notification__icon {
+  font-size: 1.5rem;
+  animation: cheatPulse 0.5s ease infinite alternate;
+}
+
+.cheat-notification__text {
+  letter-spacing: 0.5px;
+}
+
+@keyframes cheatPulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.2); }
+}
+
+/* ==================== MOBILE CONTROLS ==================== */
+.mobile-controls {
+  display: none;
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  padding: 0 20px;
+  justify-content: space-between;
+  align-items: flex-end;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.mobile-controls.visible {
+  display: flex;
+}
+
+.mobile-controls__dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 6px;
+  width: 150px;
+  height: 150px;
+  pointer-events: auto;
+}
+
+.mobile-controls__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(56, 189, 248, 0.15);
+  border: 2px solid rgba(56, 189, 248, 0.4);
+  border-radius: 12px;
+  color: rgba(56, 189, 248, 0.9);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  pointer-events: auto;
+}
+
+.mobile-controls__btn:active,
+.mobile-controls__btn.active {
+  background: rgba(56, 189, 248, 0.4);
+  border-color: rgba(56, 189, 248, 0.8);
+  transform: scale(0.95);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+}
+
+.mobile-controls__btn--up {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.mobile-controls__btn--left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.mobile-controls__btn--right {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.mobile-controls__btn--down {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.mobile-controls__btn--shield {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  font-size: 1.75rem;
+  background: rgba(251, 191, 36, 0.15);
+  border: 3px solid rgba(251, 191, 36, 0.5);
+  color: rgba(251, 191, 36, 0.9);
+}
+
+.mobile-controls__btn--shield:active,
+.mobile-controls__btn--shield.active {
+  background: rgba(251, 191, 36, 0.4);
+  border-color: rgba(251, 191, 36, 0.9);
+  box-shadow: 0 0 30px rgba(251, 191, 36, 0.6);
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+  .mobile-controls.visible {
+    display: flex;
+  }
+  
+  .playground__canvas-wrapper {
+    min-height: 400px;
+    padding-bottom: 180px;
+  }
+  
+  .game__start-text {
+    font-size: 0.9rem;
+  }
+  
+  .game__start-text::after {
+    content: ' or tap to start';
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-controls__dpad {
+    width: 130px;
+    height: 130px;
+  }
+  
+  .mobile-controls__btn--shield {
+    width: 70px;
+    height: 70px;
+    font-size: 1.5rem;
+  }
+}
+
 /* Honour reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
