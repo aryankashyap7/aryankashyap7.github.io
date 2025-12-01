@@ -63,12 +63,12 @@
                     <p class="hero__eyebrow">ML-FIRST SOFTWARE ENGINEER</p>
                     <h1 class="hero__title">
                         I build systems
-                        <span class="hero__title-highlight">that think at scale.</span>
+                        <span class="hero__title-highlight">that stay calm at scale.</span>
                     </h1>
                     <p class="hero__body">
                         I'm <span class="accent-color">Aryan Kashyap</span>, a <span class="accent-color">Software Developer & ML Engineer</span> 
-                        crafting production-grade APIs, automation, and analytics around intelligent models.
-                        I sit at the intersection of <span class="accent-color">ML, backend engineering, and cloud infra</span> —
+                        building production-grade APIs, automation, and analytics around intelligent models.
+                        I sit at the intersection of <span class="accent-color">ML, backend engineering, and cloud infra</span>
                         re‑architecting retail systems at Aptos and shipping data-heavy SaaS at EasyInsights.
                         <br /><br />
                         Curious about the story behind the work? Explore my <span class="accent-color accent-color--about-me" onclick="toggleModal()">experience, stack, and impact</span>.
@@ -80,6 +80,7 @@
                     <p class="hero__current-role">
                         Currently · <span>Software Developer L1 @ Aptos Retail</span>
                     </p>
+                    <p class="hero__elsewhere-label">Elsewhere</p>
                     <div class="social__list">
                         <a href="https://github.com/aryankashyap7" target="_blank" class="social__link click" aria-label="GitHub">
                             <i class="fa-brands fa-github"></i>
@@ -142,15 +143,19 @@
                     and as a <span class="accent-color">QA Automation Engineer at Schlumberger</span> building robust test automation.
                 </p>
                 <p class="modal__para">
-                    My work sits at the intersection of <span class="accent-color">ML, backend engineering, and cloud infrastructure</span> —
+                    My work sits at the intersection of <span class="accent-color">ML, backend engineering, and cloud infrastructure</span> -
                     from ML‑driven products to API design, observability, and regression frameworks that keep systems safe to change.
                     I studied <span class="accent-color">Computer Science with specialization in AIML at VIT Bhopal</span> (CGPA 8.56), where I focused on applied AI.
                 </p>
             </div>
             <div class="modal__half modal__contact">
                 <i class="fa-solid fa-xmark modal__exit click" onclick="toggleModal()"></i>
-                <h3 class="modal__title modal__title--contact">Let's have a chat!</h3>
-                <h4 class="modal__sub-title modal__sub-title--contact">I'm currently open to new oppurtunities.</h4>
+                <div class="modal__channel-bar">
+                    <span class="modal__channel-label">CHANNEL: OPEN</span>
+                    <span class="modal__channel-dot"></span>
+                </div>
+                <h3 class="modal__title modal__title--contact">Open a channel</h3>
+                <h4 class="modal__sub-title modal__sub-title--contact">Tell me what you're building; I'll tell you how I can help ship it.</h4>
                 <form id="contact__form" onsubmit="contact(event)">
                     <div class="form__item">
                         <label class="form__item--label">Name</label>
@@ -162,12 +167,21 @@
                     </div>
                     <div class="form__item">
                         <label class="form__item--label">Message</label>
-                        <textarea type="text" class="input" name="message"></textarea>
+                        <textarea
+                            type="text"
+                            class="input"
+                            name="message"
+                            placeholder="What are you building, and where can ML / infra help?"
+                        ></textarea>
                     </div>
                     <button id="contact__submit" class="form__submit">
-                        <span>Send it my way!</span>
+                        <span>Send transmission</span>
                     </button>
                 </form>
+                <p class="modal__alt-contact">
+                    Prefer email? 
+                    <a href="mailto:akmail2017@gmail.com" class="modal__alt-link">akmail2017@gmail.com</a>
+                </p>
                 <div class="modal__overlay modal__overlay--loading">
                         <i class="fa-solid fa-spinner"></i>
                 </div>
@@ -194,7 +208,7 @@
                 <div class="row">
                     <h1 class="section__title">Experience & <span class="accent-color">education</span></h1>
                     <div class="experience">
-                        <div class="experience__column">
+                        <div class="experience__column experience__column--timeline">
                             <h2 class="experience__heading">Experience</h2>
 
                             <article class="experience__item">
@@ -227,19 +241,19 @@
                             </article>
                         </div>
 
-                        <div class="experience__column">
+                        <div class="experience__column experience__column--education">
                             <h2 class="experience__heading">Education</h2>
-                            <article class="experience__item">
+                            <article class="experience__item experience__item--education">
                                 <h3 class="experience__role">B.Tech · CSE (AIML)</h3>
                                 <p class="experience__meta">Vellore Institute of Technology, Bhopal · 2020 – 2024</p>
                                 <p class="experience__meta">CGPA: 8.56</p>
                             </article>
-                            <article class="experience__item">
+                            <article class="experience__item experience__item--education">
                                 <h3 class="experience__role">Class XII</h3>
                                 <p class="experience__meta">DPS Durg, India</p>
                                 <p class="experience__meta">Percentage: 85.2%</p>
                             </article>
-                            <article class="experience__item">
+                            <article class="experience__item experience__item--education">
                                 <h3 class="experience__role">Class X</h3>
                                 <p class="experience__meta">DPS Raigarh, India</p>
                                 <p class="experience__meta">CGPA: 9.4</p>
@@ -262,6 +276,9 @@
             <div class="container">
                 <div class="row">
                     <h1 class="section__title">Some <span class="accent-color">featured projects</span></h1>
+                    <p class="section__intro">
+                        A few systems and experiments that show how I think about ML products, infra, and orchestration.
+                    </p>
                     <ul class="project__list">
                         <!-- 1. InfraSage -->
                         <li class="project">
@@ -425,7 +442,10 @@
         <section id="skills">
             <div class="container">
                 <div class="row">
-                    <h1 class="section__title">My <span class="accent-color">ML & AI</span> tech stack</h1>
+                    <h1 class="section__title">How I <span class="accent-color">work with ML systems</span></h1>
+                    <p class="skills__intro">
+                        From prototype notebooks to production APIs, I care about fast feedback loops, observability, and deployments that stay boring in production.
+                    </p>
                     <div class="skills__languages">
                         <figure class="skills__language">
                             <img
@@ -493,7 +513,7 @@
                         </figure>
                     </div>
 
-                    <h1 class="section__title">And some <span class="accent-color">programming languages</span> I know</h1>
+                    <h1 class="section__title">Languages I <span class="accent-color">reach for often</span></h1>
                     <div class="skills__languages">
                         <figure class="skills__language">
                             <img
@@ -529,7 +549,7 @@
                         </figure>
                     </div>
 
-                    <h1 class="section__title">Web development & <span class="accent-color">other tools</span></h1>
+                    <h1 class="section__title">Infra & <span class="accent-color">tooling I lean on</span></h1>
                     <div class="skills__languages">
                         <figure class="skills__language">
                             <img
@@ -600,33 +620,60 @@
             </div>
         </section>
 
-        <section id="playground" aria-label="Flight mini-game">
+        <section id="playground" aria-label="Asteroid Dodge arcade game">
             <div class="container">
                 <div class="row playground__row">
                     <div class="playground__copy">
-                        <p class="playground__eyebrow">Tiny game · fly through the valley</p>
-                        <h2 class="playground__title">Night Flight</h2>
+                        <p class="playground__eyebrow">Arcade · dodge the debris</p>
+                        <h2 class="playground__title">Asteroid Dodge</h2>
                         <p class="playground__subtitle">
-                            Guide a little plane through shifting terrain. It’s simple: don’t hit the walls, enjoy the glow, and zone out for a few seconds.
+                            Pilot your spacecraft through an endless asteroid field. 
+                            How long can you survive the chaos of deep space?
                         </p>
                         <ul class="playground__hints">
-                            <li>Move your mouse over the field to steer the plane up and down.</li>
-                            <li>Click to give the engines a short boost.</li>
-                            <li>If you crash, tap anywhere to restart.</li>
+                            <li><span>↑ ↓ ← →</span> or <span>W A S D</span> to steer your ship.</li>
+                            <li><span>Space</span> or <span>Click</span> to activate shield burst.</li>
+                            <li>Survive as long as you can - your best run is saved.</li>
                         </ul>
                     </div>
                     <div class="playground__canvas-wrapper">
-                        <div class="playground__hud">
-                            <div class="playground__hud-row">
-                                <span class="playground__hud-label">Distance</span>
-                                <span class="playground__hud-value" id="flightDistance">0 m</span>
+                        <canvas id="asteroidGame" aria-hidden="true"></canvas>
+                        <div class="game__hud">
+                            <div class="game__hud-left">
+                                <div class="game__hud-item">
+                                    <span class="game__hud-label">Score</span>
+                                    <span class="game__hud-value" id="gameScore">0</span>
+                                </div>
+                                <div class="game__hud-item">
+                                    <span class="game__hud-label">Best</span>
+                                    <span class="game__hud-value game__hud-value--best" id="gameBest">0</span>
+                                </div>
                             </div>
-                            <div class="playground__hud-row playground__hud-row--secondary">
-                                <span class="playground__hud-label">Status</span>
-                                <span class="playground__hud-value" id="flightStatus">Cruising</span>
+                            <div class="game__hud-right">
+                                <div class="game__hud-item">
+                                    <span class="game__hud-label">Shields</span>
+                                    <div class="game__shields" id="gameShields">
+                                        <span class="game__shield active"></span>
+                                        <span class="game__shield active"></span>
+                                        <span class="game__shield active"></span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <canvas id="flightGame" aria-hidden="true"></canvas>
+                        <div class="game__overlay" id="gameOverlay">
+                            <div class="game__overlay-content">
+                                <h3 class="game__overlay-title">Game Over</h3>
+                                <p class="game__overlay-score">Score: <span id="finalScore">0</span></p>
+                                <p class="game__overlay-best">Best: <span id="finalBest">0</span></p>
+                                <button class="game__restart" id="gameRestart">Play Again</button>
+                            </div>
+                            </div>
+                        <div class="game__start" id="gameStart">
+                            <div class="game__start-content">
+                                <div class="game__start-icon">🚀</div>
+                                <p class="game__start-text">Press any arrow key to start</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

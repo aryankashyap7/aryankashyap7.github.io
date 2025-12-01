@@ -154,334 +154,715 @@ const observer = new IntersectionObserver((entries) => {
     })
 }, observerOptions)
 
-// ==================== NIGHT FLIGHT – CANVAS MINI GAME ====================
-const flightGame = {
+// ==================== ASTEROID DODGE – ARCADE GAME ====================
+const asteroidGame = {
     canvas: null,
     ctx: null,
     width: 0,
     height: 0,
-    terrain: [],
-    planeY: 0,
-    planeVy: 0,
-    targetY: 0,
-    scrollX: 0,
-    speed: 160,
-    boost: 0,
-    gravity: 280,
-    damping: 0.9,
+    
+    // Game state
     running: false,
-    crashed: false,
-    distance: 0,
-    lastTime: 0
+    started: false,
+    gameOver: false,
+    score: 0,
+    bestScore: parseInt(localStorage.getItem('asteroidBest') || '0'),
+    shields: 3,
+    shieldActive: false,
+    shieldTimer: 0,
+    difficulty: 1,
+    
+    // Player
+    ship: { x: 0, y: 0, vx: 0, vy: 0, angle: 0, trail: [] },
+    
+    // Keyboard input
+    keys: { up: false, down: false, left: false, right: false },
+    
+    // Objects
+    asteroids: [],
+    particles: [],
+    stars: [],
+    powerups: [],
+    
+    // Visual effects
+    screenShake: 0,
+    flashAlpha: 0,
+    
+    // Timing
+    lastTime: 0,
+    spawnTimer: 0,
+    difficultyTimer: 0
 }
 
-function initFlightGame() {
-    const canvas = document.getElementById('flightGame')
+function initAsteroidGame() {
+    const canvas = document.getElementById('asteroidGame')
     if (!canvas) return
 
     const ctx = canvas.getContext('2d')
-    flightGame.canvas = canvas
-    flightGame.ctx = ctx
+    asteroidGame.canvas = canvas
+    asteroidGame.ctx = ctx
 
-    resizeFlightCanvas()
-    window.addEventListener('resize', resizeFlightCanvas)
+    resizeAsteroidCanvas()
+    window.addEventListener('resize', resizeAsteroidCanvas)
 
-    canvas.addEventListener('mousemove', handleFlightMouseMove)
-    canvas.addEventListener('mouseleave', () => {
-        flightGame.targetY = flightGame.height * 0.5
-    })
-
-    canvas.addEventListener('mousedown', () => {
-        if (flightGame.crashed) {
-            resetFlightGame()
-        } else {
-            flightGame.boost = 1.1
+    // Keyboard controls
+    document.addEventListener('keydown', (e) => {
+        // Start game on any arrow key
+        if (!asteroidGame.started && !asteroidGame.gameOver) {
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd', 'W', 'A', 'S', 'D'].includes(e.key)) {
+                startAsteroidGame()
+            }
+        }
+        
+        switch(e.key) {
+            case 'ArrowUp':
+            case 'w':
+            case 'W':
+                asteroidGame.keys.up = true
+                e.preventDefault()
+                break
+            case 'ArrowDown':
+            case 's':
+            case 'S':
+                asteroidGame.keys.down = true
+                e.preventDefault()
+                break
+            case 'ArrowLeft':
+            case 'a':
+            case 'A':
+                asteroidGame.keys.left = true
+                e.preventDefault()
+                break
+            case 'ArrowRight':
+            case 'd':
+            case 'D':
+                asteroidGame.keys.right = true
+                e.preventDefault()
+                break
+            case ' ':
+                // Space for shield
+                if (asteroidGame.running && asteroidGame.shields > 0 && !asteroidGame.shieldActive) {
+                    activateShield()
+                }
+                e.preventDefault()
+                break
         }
     })
 
-    resetFlightGame()
-    requestAnimationFrame(stepFlightGame)
-}
-
-function resizeFlightCanvas() {
-    if (!flightGame.canvas) return
-    const rect = flightGame.canvas.getBoundingClientRect()
-    const dpr = window.devicePixelRatio || 1
-    flightGame.canvas.width = rect.width * dpr
-    flightGame.canvas.height = rect.height * dpr
-    flightGame.ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    flightGame.width = rect.width
-    flightGame.height = rect.height
-
-    if (flightGame.terrain.length === 0) {
-        generateTerrain()
-    }
-}
-
-function generateTerrain() {
-    flightGame.terrain = []
-    const segments = 120
-    const width = flightGame.width
-    const height = flightGame.height
-    const baseGap = height * 0.45
-    let midpoint = height * 0.5
-
-    for (let i = 0; i <= segments; i++) {
-        const t = i / segments
-        const noise = (Math.sin(t * Math.PI * 2) + Math.sin(t * Math.PI * 4 + 1.2)) * 0.12
-        midpoint += (Math.random() - 0.5) * height * 0.08
-        midpoint = Math.max(height * 0.3, Math.min(height * 0.7, midpoint))
-        const gap = baseGap * (0.8 + Math.random() * 0.4)
-        const top = midpoint - gap / 2 + noise * height
-        const bottom = midpoint + gap / 2 + noise * height
-        flightGame.terrain.push({
-            x: (i / segments) * (width * 2),
-            top,
-            bottom
-        })
-    }
-}
-
-function handleFlightMouseMove(e) {
-    const rect = flightGame.canvas.getBoundingClientRect()
-    const y = e.clientY - rect.top
-    flightGame.targetY = y
-}
-
-function resetFlightGame() {
-    const h = flightGame.height || 240
-    flightGame.planeY = h * 0.5
-    flightGame.targetY = h * 0.5
-    flightGame.planeVy = 0
-    flightGame.scrollX = 0
-    flightGame.distance = 0
-    flightGame.speed = 180
-    flightGame.boost = 0
-    flightGame.running = true
-    flightGame.crashed = false
-    flightGame.lastTime = performance.now()
-    generateTerrain()
-    updateFlightHud()
-}
-
-function stepFlightGame(timestamp) {
-    if (!flightGame.canvas || !flightGame.ctx) return
-
-    const dt = (timestamp - flightGame.lastTime) / 1000 || 0.016
-    flightGame.lastTime = timestamp
-
-    updateFlightState(dt)
-    renderFlightScene()
-
-    requestAnimationFrame(stepFlightGame)
-}
-
-function updateFlightState(dt) {
-    if (!flightGame.running) return
-
-    if (flightGame.boost > 0) {
-        flightGame.speed += 180 * dt
-        flightGame.boost -= dt
-    } else {
-        flightGame.speed += (180 - flightGame.speed) * 0.6 * dt
-    }
-
-    const accel = (flightGame.targetY - flightGame.planeY) * 4
-    flightGame.planeVy += accel * dt
-    flightGame.planeVy *= flightGame.damping
-    flightGame.planeY += flightGame.planeVy * dt
-
-    const width = flightGame.width
-    const height = flightGame.height
-
-    flightGame.scrollX += flightGame.speed * dt
-    flightGame.distance += flightGame.speed * dt * 0.2
-
-    // Keep world coordinates bounded to avoid precision / disappearing terrain
-    if (flightGame.scrollX > width) {
-        flightGame.scrollX -= width
-        const shift = width
-        flightGame.terrain.forEach(p => {
-            p.x -= shift
-        })
-    }
-
-    const planeX = width * 0.28
-    const planeY = flightGame.planeY
-
-    const terrain = flightGame.terrain
-    if (terrain.length > 1) {
-        // find segment range near plane
-        const tunnelX = flightGame.scrollX + planeX
-        for (let i = 0; i < terrain.length - 1; i++) {
-            const a = terrain[i]
-            const b = terrain[i + 1]
-            if (tunnelX >= a.x && tunnelX <= b.x) {
-                const t = (tunnelX - a.x) / (b.x - a.x)
-                const top = a.top + (b.top - a.top) * t
-                const bottom = a.bottom + (b.bottom - a.bottom) * t
-                const margin = 12
-                if (planeY - margin < top || planeY + margin > bottom) {
-                    flightGame.running = false
-                    flightGame.crashed = true
-                    updateFlightHud(true)
-                }
+    document.addEventListener('keyup', (e) => {
+        switch(e.key) {
+            case 'ArrowUp':
+            case 'w':
+            case 'W':
+                asteroidGame.keys.up = false
                 break
+            case 'ArrowDown':
+            case 's':
+            case 'S':
+                asteroidGame.keys.down = false
+                break
+            case 'ArrowLeft':
+            case 'a':
+            case 'A':
+                asteroidGame.keys.left = false
+                break
+            case 'ArrowRight':
+            case 'd':
+            case 'D':
+                asteroidGame.keys.right = false
+                break
+        }
+    })
+
+    // Click/touch for shield activation
+    canvas.addEventListener('click', () => {
+        if (!asteroidGame.started && !asteroidGame.gameOver) {
+            startAsteroidGame()
+        } else if (asteroidGame.running && asteroidGame.shields > 0 && !asteroidGame.shieldActive) {
+            activateShield()
+        }
+    })
+
+    canvas.addEventListener('touchstart', (e) => {
+        if (!asteroidGame.started && !asteroidGame.gameOver) {
+            startAsteroidGame()
+        } else if (asteroidGame.running && asteroidGame.shields > 0 && !asteroidGame.shieldActive) {
+            activateShield()
+        }
+    })
+
+    // Restart button
+    const restartBtn = document.getElementById('gameRestart')
+    if (restartBtn) {
+        restartBtn.addEventListener('click', () => {
+            resetAsteroidGame()
+            startAsteroidGame()
+        })
+    }
+
+    initStars()
+    updateHUD()
+    requestAnimationFrame(stepAsteroidGame)
+}
+
+function resizeAsteroidCanvas() {
+    if (!asteroidGame.canvas) return
+    const rect = asteroidGame.canvas.getBoundingClientRect()
+    const dpr = window.devicePixelRatio || 1
+
+    asteroidGame.canvas.width = rect.width * dpr
+    asteroidGame.canvas.height = rect.height * dpr
+    asteroidGame.ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    asteroidGame.width = rect.width
+    asteroidGame.height = rect.height
+
+    // Center ship
+    asteroidGame.ship.x = rect.width / 2
+    asteroidGame.ship.y = rect.height / 2
+    asteroidGame.ship.targetX = rect.width / 2
+    asteroidGame.ship.targetY = rect.height / 2
+
+    initStars()
+}
+
+function initStars() {
+    asteroidGame.stars = []
+    const count = 80
+    for (let i = 0; i < count; i++) {
+        asteroidGame.stars.push({
+            x: Math.random() * asteroidGame.width,
+            y: Math.random() * asteroidGame.height,
+            size: Math.random() * 1.5 + 0.5,
+            speed: Math.random() * 30 + 10,
+            alpha: Math.random() * 0.5 + 0.3
+        })
+    }
+}
+
+function startAsteroidGame() {
+    asteroidGame.started = true
+    asteroidGame.running = true
+    asteroidGame.gameOver = false
+    asteroidGame.lastTime = performance.now()
+    
+    const startOverlay = document.getElementById('gameStart')
+    if (startOverlay) startOverlay.classList.add('hidden')
+}
+
+function resetAsteroidGame() {
+    asteroidGame.score = 0
+    asteroidGame.shields = 3
+    asteroidGame.shieldActive = false
+    asteroidGame.shieldTimer = 0
+    asteroidGame.difficulty = 1
+    asteroidGame.difficultyTimer = 0
+    asteroidGame.spawnTimer = 0
+    asteroidGame.asteroids = []
+    asteroidGame.particles = []
+    asteroidGame.powerups = []
+    asteroidGame.ship.trail = []
+    asteroidGame.ship.vx = 0
+    asteroidGame.ship.vy = 0
+    asteroidGame.keys = { up: false, down: false, left: false, right: false }
+    asteroidGame.screenShake = 0
+    asteroidGame.flashAlpha = 0
+    asteroidGame.gameOver = false
+    
+    asteroidGame.ship.x = asteroidGame.width / 2
+    asteroidGame.ship.y = asteroidGame.height / 2
+    
+    const overlay = document.getElementById('gameOverlay')
+    if (overlay) overlay.classList.remove('visible')
+    
+    updateHUD()
+    updateShieldDisplay()
+}
+
+function activateShield() {
+    asteroidGame.shields--
+    asteroidGame.shieldActive = true
+    asteroidGame.shieldTimer = 1.5 // 1.5 seconds of invincibility
+    asteroidGame.flashAlpha = 0.4
+    
+    // Create shield burst particles
+    for (let i = 0; i < 24; i++) {
+        const angle = (i / 24) * Math.PI * 2
+        asteroidGame.particles.push({
+            x: asteroidGame.ship.x,
+            y: asteroidGame.ship.y,
+            vx: Math.cos(angle) * 150,
+            vy: Math.sin(angle) * 150,
+            life: 0.6,
+            maxLife: 0.6,
+            size: 4,
+            color: 'cyan'
+        })
+    }
+    
+    updateShieldDisplay()
+}
+
+function spawnAsteroid() {
+    const side = Math.floor(Math.random() * 4)
+    let x, y, vx, vy
+    
+    const speed = 80 + asteroidGame.difficulty * 25
+    const size = 15 + Math.random() * 25
+    
+    switch(side) {
+        case 0: // top
+            x = Math.random() * asteroidGame.width
+            y = -size
+            vx = (Math.random() - 0.5) * speed * 0.5
+            vy = Math.random() * speed * 0.5 + speed * 0.5
+            break
+        case 1: // right
+            x = asteroidGame.width + size
+            y = Math.random() * asteroidGame.height
+            vx = -(Math.random() * speed * 0.5 + speed * 0.5)
+            vy = (Math.random() - 0.5) * speed * 0.5
+            break
+        case 2: // bottom
+            x = Math.random() * asteroidGame.width
+            y = asteroidGame.height + size
+            vx = (Math.random() - 0.5) * speed * 0.5
+            vy = -(Math.random() * speed * 0.5 + speed * 0.5)
+            break
+        case 3: // left
+            x = -size
+            y = Math.random() * asteroidGame.height
+            vx = Math.random() * speed * 0.5 + speed * 0.5
+            vy = (Math.random() - 0.5) * speed * 0.5
+            break
+    }
+    
+    // Generate asteroid shape (irregular polygon)
+    const vertices = []
+    const vertexCount = 6 + Math.floor(Math.random() * 4)
+    for (let i = 0; i < vertexCount; i++) {
+        const angle = (i / vertexCount) * Math.PI * 2
+        const radius = size * (0.7 + Math.random() * 0.3)
+        vertices.push({
+            x: Math.cos(angle) * radius,
+            y: Math.sin(angle) * radius
+        })
+    }
+    
+    asteroidGame.asteroids.push({
+        x, y, vx, vy,
+        size,
+        rotation: 0,
+        rotationSpeed: (Math.random() - 0.5) * 3,
+        vertices,
+        glow: Math.random() > 0.7 // Some asteroids glow
+    })
+}
+
+function stepAsteroidGame(timestamp) {
+    if (!asteroidGame.canvas || !asteroidGame.ctx) {
+        requestAnimationFrame(stepAsteroidGame)
+        return
+    }
+
+    const dt = Math.min((timestamp - asteroidGame.lastTime) / 1000, 0.05) || 0.016
+    asteroidGame.lastTime = timestamp
+
+    if (asteroidGame.running && !asteroidGame.gameOver) {
+        updateAsteroidGame(dt)
+    }
+    
+    renderAsteroidGame()
+    requestAnimationFrame(stepAsteroidGame)
+}
+
+function updateAsteroidGame(dt) {
+    const { ship, asteroids, particles, stars, width, height, keys } = asteroidGame
+    
+    // Update score
+    asteroidGame.score += dt * 10 * asteroidGame.difficulty
+    
+    // Increase difficulty over time
+    asteroidGame.difficultyTimer += dt
+    if (asteroidGame.difficultyTimer > 8) {
+        asteroidGame.difficulty = Math.min(asteroidGame.difficulty + 0.3, 5)
+        asteroidGame.difficultyTimer = 0
+    }
+    
+    // Spawn asteroids
+    asteroidGame.spawnTimer += dt
+    const spawnRate = Math.max(0.4, 1.2 - asteroidGame.difficulty * 0.15)
+    if (asteroidGame.spawnTimer > spawnRate) {
+        spawnAsteroid()
+        asteroidGame.spawnTimer = 0
+    }
+    
+    // Ship movement with arrow keys (acceleration-based for smooth feel)
+    const acceleration = 600
+    const friction = 4
+    const maxSpeed = 280
+    
+    // Apply acceleration based on keys
+    if (keys.up) ship.vy -= acceleration * dt
+    if (keys.down) ship.vy += acceleration * dt
+    if (keys.left) ship.vx -= acceleration * dt
+    if (keys.right) ship.vx += acceleration * dt
+    
+    // Apply friction when no keys pressed
+    if (!keys.left && !keys.right) {
+        ship.vx *= (1 - friction * dt)
+    }
+    if (!keys.up && !keys.down) {
+        ship.vy *= (1 - friction * dt)
+    }
+    
+    // Clamp speed
+    const speed = Math.hypot(ship.vx, ship.vy)
+    if (speed > maxSpeed) {
+        ship.vx = (ship.vx / speed) * maxSpeed
+        ship.vy = (ship.vy / speed) * maxSpeed
+    }
+    
+    // Update position
+    ship.x += ship.vx * dt
+    ship.y += ship.vy * dt
+    
+    // Keep ship within bounds
+    const margin = 15
+    ship.x = Math.max(margin, Math.min(width - margin, ship.x))
+    ship.y = Math.max(margin, Math.min(height - margin, ship.y))
+    
+    // Bounce off edges slightly
+    if (ship.x <= margin || ship.x >= width - margin) ship.vx *= -0.5
+    if (ship.y <= margin || ship.y >= height - margin) ship.vy *= -0.5
+    
+    // Calculate ship angle based on velocity
+    if (Math.abs(ship.vx) > 5 || Math.abs(ship.vy) > 5) {
+        ship.angle = Math.atan2(ship.vy, ship.vx)
+    }
+    
+    // Update ship trail
+    ship.trail.unshift({ x: ship.x, y: ship.y, alpha: 1 })
+    if (ship.trail.length > 20) ship.trail.pop()
+    ship.trail.forEach(t => t.alpha -= dt * 3)
+    ship.trail = ship.trail.filter(t => t.alpha > 0)
+    
+    // Update shield timer
+    if (asteroidGame.shieldActive) {
+        asteroidGame.shieldTimer -= dt
+        if (asteroidGame.shieldTimer <= 0) {
+            asteroidGame.shieldActive = false
+        }
+    }
+    
+    // Update asteroids
+    for (let i = asteroids.length - 1; i >= 0; i--) {
+        const a = asteroids[i]
+        a.x += a.vx * dt
+        a.y += a.vy * dt
+        a.rotation += a.rotationSpeed * dt
+        
+        // Remove if off screen
+        const margin = a.size * 2
+        if (a.x < -margin || a.x > width + margin || 
+            a.y < -margin || a.y > height + margin) {
+            asteroids.splice(i, 1)
+            continue
+        }
+        
+        // Collision detection with ship
+        const distToShip = Math.hypot(a.x - ship.x, a.y - ship.y)
+        if (distToShip < a.size * 0.7 + 12) {
+            if (asteroidGame.shieldActive) {
+                // Destroy asteroid with shield
+                createExplosion(a.x, a.y, a.size, 'cyan')
+                asteroids.splice(i, 1)
+            } else {
+                // Game over
+                endGame()
+                return
             }
         }
     }
-
-    // recycle terrain ahead when scroll passes first segment
-    const first = terrain[0]
-    if (flightGame.scrollX > first.x + width) {
-        terrain.shift()
-        const prev = terrain[terrain.length - 1]
-        const x = prev.x + width / 8
-        const baseGap = height * 0.42
-        const midpoint = (prev.top + prev.bottom) / 2 + (Math.random() - 0.5) * height * 0.08
-        const gap = baseGap * (0.9 + Math.random() * 0.25)
-        const top = Math.max(height * 0.18, Math.min(height * 0.75, midpoint - gap / 2))
-        const bottom = Math.max(top + gap * 0.7, midpoint + gap / 2)
-        terrain.push({ x, top, bottom })
+    
+    // Update stars (parallax)
+    stars.forEach(s => {
+        s.y += s.speed * dt
+        if (s.y > height) {
+            s.y = 0
+            s.x = Math.random() * width
+        }
+    })
+    
+    // Update particles
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i]
+        p.x += p.vx * dt
+        p.y += p.vy * dt
+        p.life -= dt
+        p.vx *= 0.98
+        p.vy *= 0.98
+        
+        if (p.life <= 0) {
+            particles.splice(i, 1)
+        }
     }
-
-    updateFlightHud()
+    
+    // Update screen shake
+    if (asteroidGame.screenShake > 0) {
+        asteroidGame.screenShake -= dt * 10
+    }
+    
+    // Update flash
+    if (asteroidGame.flashAlpha > 0) {
+        asteroidGame.flashAlpha -= dt * 2
+    }
+    
+    // Update HUD
+    updateHUD()
 }
 
-function renderFlightScene() {
-    const ctx = flightGame.ctx
-    const width = flightGame.width
-    const height = flightGame.height
+function createExplosion(x, y, size, color = 'orange') {
+    const particleCount = Math.floor(size * 1.5)
+    for (let i = 0; i < particleCount; i++) {
+        const angle = Math.random() * Math.PI * 2
+        const speed = 50 + Math.random() * 150
+        const particleColor = color === 'orange' 
+            ? (Math.random() > 0.5 ? '#fbbf24' : '#fb7185')
+            : '#38bdf8'
+        
+        asteroidGame.particles.push({
+            x,
+            y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: 0.5 + Math.random() * 0.5,
+            maxLife: 1,
+            size: 2 + Math.random() * 4,
+            color: particleColor
+        })
+    }
+    
+    asteroidGame.screenShake = 5
+}
+
+function endGame() {
+    asteroidGame.running = false
+    asteroidGame.gameOver = true
+    
+    // Create big explosion at ship
+    createExplosion(asteroidGame.ship.x, asteroidGame.ship.y, 40, 'orange')
+    asteroidGame.screenShake = 15
+    asteroidGame.flashAlpha = 0.8
+    
+    // Update best score
+    const finalScore = Math.floor(asteroidGame.score)
+    if (finalScore > asteroidGame.bestScore) {
+        asteroidGame.bestScore = finalScore
+        localStorage.setItem('asteroidBest', finalScore.toString())
+    }
+    
+    // Show game over overlay
+    setTimeout(() => {
+        const overlay = document.getElementById('gameOverlay')
+        const finalScoreEl = document.getElementById('finalScore')
+        const finalBestEl = document.getElementById('finalBest')
+        
+        if (overlay) overlay.classList.add('visible')
+        if (finalScoreEl) finalScoreEl.textContent = finalScore
+        if (finalBestEl) finalBestEl.textContent = asteroidGame.bestScore
+    }, 500)
+}
+
+function updateHUD() {
+    const scoreEl = document.getElementById('gameScore')
+    const bestEl = document.getElementById('gameBest')
+    
+    if (scoreEl) scoreEl.textContent = Math.floor(asteroidGame.score)
+    if (bestEl) bestEl.textContent = asteroidGame.bestScore
+}
+
+function updateShieldDisplay() {
+    const shieldsContainer = document.getElementById('gameShields')
+    if (!shieldsContainer) return
+    
+    const shields = shieldsContainer.querySelectorAll('.game__shield')
+    shields.forEach((shield, i) => {
+        if (i < asteroidGame.shields) {
+            shield.classList.add('active')
+        } else {
+            shield.classList.remove('active')
+        }
+    })
+}
+
+function renderAsteroidGame() {
+    const { ctx, width, height, ship, asteroids, particles, stars } = asteroidGame
     if (!ctx || width === 0 || height === 0) return
 
-    ctx.clearRect(0, 0, width, height)
-
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, height)
-    skyGrad.addColorStop(0, '#020617')
-    skyGrad.addColorStop(1, '#020617')
-    ctx.fillStyle = skyGrad
-    ctx.fillRect(0, 0, width, height)
-
     ctx.save()
-    ctx.translate(-flightGame.scrollX, 0)
+    
+    // Apply screen shake
+    if (asteroidGame.screenShake > 0) {
+        const shakeX = (Math.random() - 0.5) * asteroidGame.screenShake
+        const shakeY = (Math.random() - 0.5) * asteroidGame.screenShake
+        ctx.translate(shakeX, shakeY)
+    }
 
-    ctx.strokeStyle = 'rgba(15, 23, 42, 0.9)'
-    ctx.lineWidth = 1
-    for (let x = 0; x < width * 3; x += 40) {
+    // Background gradient
+    const bgGrad = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width)
+    bgGrad.addColorStop(0, '#0a0f1a')
+    bgGrad.addColorStop(1, '#020617')
+    ctx.fillStyle = bgGrad
+    ctx.fillRect(-10, -10, width + 20, height + 20)
+
+    // Draw stars
+    stars.forEach(s => {
         ctx.beginPath()
-        ctx.moveTo(x, 0)
-        ctx.lineTo(x - 10, height)
+        ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2)
+        ctx.fill()
+    })
+
+    // Draw particles
+    particles.forEach(p => {
+        const alpha = p.life / p.maxLife
+        ctx.beginPath()
+        ctx.fillStyle = p.color
+        ctx.globalAlpha = alpha
+        ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.globalAlpha = 1
+    })
+
+    // Draw ship trail
+    ship.trail.forEach((t, i) => {
+        const alpha = t.alpha * 0.5
+        const size = 6 * (1 - i / ship.trail.length)
+        ctx.beginPath()
+        const gradient = ctx.createRadialGradient(t.x, t.y, 0, t.x, t.y, size)
+        gradient.addColorStop(0, `rgba(56, 189, 248, ${alpha})`)
+        gradient.addColorStop(1, 'rgba(56, 189, 248, 0)')
+        ctx.fillStyle = gradient
+        ctx.arc(t.x, t.y, size, 0, Math.PI * 2)
+        ctx.fill()
+    })
+
+    // Draw ship
+    ctx.save()
+    ctx.translate(ship.x, ship.y)
+    ctx.rotate(ship.angle + Math.PI / 2)
+    
+    // Ship glow
+    const shipGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, 25)
+    shipGlow.addColorStop(0, 'rgba(56, 189, 248, 0.4)')
+    shipGlow.addColorStop(1, 'rgba(56, 189, 248, 0)')
+    ctx.fillStyle = shipGlow
+    ctx.beginPath()
+    ctx.arc(0, 0, 25, 0, Math.PI * 2)
+    ctx.fill()
+    
+    // Shield effect
+    if (asteroidGame.shieldActive) {
+        const shieldPulse = Math.sin(performance.now() / 50) * 0.3 + 0.7
+        ctx.strokeStyle = `rgba(56, 189, 248, ${shieldPulse})`
+        ctx.lineWidth = 3
+        ctx.beginPath()
+        ctx.arc(0, 0, 22, 0, Math.PI * 2)
+        ctx.stroke()
+        
+        ctx.strokeStyle = `rgba(34, 211, 238, ${shieldPulse * 0.5})`
+    ctx.lineWidth = 1
+        ctx.beginPath()
+        ctx.arc(0, 0, 28, 0, Math.PI * 2)
         ctx.stroke()
     }
 
-    const terrainGrad = ctx.createLinearGradient(0, 0, 0, height)
-    terrainGrad.addColorStop(0, 'rgba(15, 23, 42, 1)')
-    terrainGrad.addColorStop(1, '#020617')
-
-    const terrain = flightGame.terrain
-    if (terrain.length > 1) {
-        // top
-        ctx.fillStyle = terrainGrad
+    // Ship body (triangle)
+    ctx.fillStyle = '#38bdf8'
         ctx.beginPath()
-        ctx.moveTo(terrain[0].x, 0)
-        terrain.forEach(p => {
-            ctx.lineTo(p.x, p.top)
-        })
-        ctx.lineTo(terrain[terrain.length - 1].x, 0)
+    ctx.moveTo(0, -14)
+    ctx.lineTo(-10, 10)
+    ctx.lineTo(0, 6)
+    ctx.lineTo(10, 10)
         ctx.closePath()
         ctx.fill()
 
-        // bottom
+    // Ship highlight
+    ctx.fillStyle = '#7dd3fc'
         ctx.beginPath()
-        ctx.moveTo(terrain[0].x, height)
-        terrain.forEach(p => {
-            ctx.lineTo(p.x, p.bottom)
-        })
-        ctx.lineTo(terrain[terrain.length - 1].x, height)
+    ctx.moveTo(0, -10)
+    ctx.lineTo(-4, 4)
+    ctx.lineTo(0, 2)
+    ctx.lineTo(4, 4)
         ctx.closePath()
         ctx.fill()
-    }
+    
+    // Engine glow
+    ctx.fillStyle = '#fbbf24'
+    ctx.beginPath()
+    ctx.arc(0, 12, 4, 0, Math.PI * 2)
+    ctx.fill()
+    
+    const engineGlow = ctx.createRadialGradient(0, 12, 0, 0, 12, 12)
+    engineGlow.addColorStop(0, 'rgba(251, 191, 36, 0.6)')
+    engineGlow.addColorStop(1, 'rgba(251, 191, 36, 0)')
+    ctx.fillStyle = engineGlow
+    ctx.beginPath()
+    ctx.arc(0, 12, 12, 0, Math.PI * 2)
+    ctx.fill()
 
     ctx.restore()
 
-    const planeX = width * 0.28
-    const planeY = flightGame.planeY
-
-    ctx.save()
-    ctx.translate(planeX, planeY)
-    const bank = (flightGame.planeVy / 220)
-    ctx.rotate(bank * 0.35)
-
-    // Compact jet made from simple triangles – slightly larger
-    const jetGrad = ctx.createLinearGradient(-12, 0, 16, 0)
-    jetGrad.addColorStop(0, '#020617')
-    jetGrad.addColorStop(1, '#38bdf8')
-    ctx.fillStyle = jetGrad
-
-    // Main body
-    ctx.beginPath()
-    ctx.moveTo(16, 0)    // nose (further forward)
-    ctx.lineTo(-10, -6)  // tail top
-    ctx.lineTo(-10, 6)   // tail bottom
-    ctx.closePath()
-    ctx.fill()
-
-    // Small top wing
-    ctx.fillStyle = '#0f172a'
-    ctx.beginPath()
-    ctx.moveTo(-1, 0)
-    ctx.lineTo(-9, -9)
-    ctx.lineTo(-3, -3)
-    ctx.closePath()
-    ctx.fill()
-
-    // Tiny cockpit highlight
-    ctx.strokeStyle = 'rgba(226,232,240,0.7)'
-    ctx.lineWidth = 1
-    ctx.beginPath()
-    ctx.moveTo(5, -1.8)
-    ctx.lineTo(0, -0.6)
-    ctx.stroke()
-
-    ctx.restore()
-
-    // Tiny shadow under the jet
-    ctx.save()
-    ctx.globalAlpha = 0.22
-    ctx.fillStyle = '#020617'
-    ctx.beginPath()
-    ctx.ellipse(planeX, planeY + 11, 20, 6, 0, 0, Math.PI * 2)
-    ctx.fill()
-    ctx.restore()
-
-    if (flightGame.crashed) {
-        ctx.fillStyle = 'rgba(15,23,42,0.78)'
-        ctx.fillRect(0, 0, width, height)
-        ctx.fillStyle = '#fee2e2'
-        ctx.font = '700 1.2rem "Sora", system-ui, -apple-system, BlinkMacSystemFont'
-        ctx.textAlign = 'center'
-        ctx.fillText('Crashed into the canyon', width / 2, height / 2 - 10)
-        ctx.font = '400 0.85rem "Sora", system-ui, -apple-system, BlinkMacSystemFont'
-        ctx.fillStyle = '#9ca3af'
-        ctx.fillText('Click to try again', width / 2, height / 2 + 16)
-    }
-}
-
-function updateFlightHud(crashed) {
-    const distanceEl = document.getElementById('flightDistance')
-    const statusEl = document.getElementById('flightStatus')
-    if (distanceEl) {
-        distanceEl.textContent = `${Math.floor(flightGame.distance)} m`
-    }
-    if (statusEl) {
-        if (crashed || flightGame.crashed) {
-            statusEl.textContent = 'Crashed'
-        } else if (flightGame.speed > 220) {
-            statusEl.textContent = 'Fast'
-        } else {
-            statusEl.textContent = 'Cruising'
+    // Draw asteroids
+    asteroids.forEach(a => {
+        ctx.save()
+        ctx.translate(a.x, a.y)
+        ctx.rotate(a.rotation)
+        
+        // Asteroid glow (for glowing asteroids)
+        if (a.glow) {
+            const glowGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, a.size * 1.5)
+            glowGrad.addColorStop(0, 'rgba(251, 113, 133, 0.3)')
+            glowGrad.addColorStop(1, 'rgba(251, 113, 133, 0)')
+            ctx.fillStyle = glowGrad
+            ctx.beginPath()
+            ctx.arc(0, 0, a.size * 1.5, 0, Math.PI * 2)
+            ctx.fill()
         }
+        
+        // Asteroid body
+        ctx.fillStyle = a.glow ? '#4a3f4f' : '#2d3748'
+        ctx.strokeStyle = a.glow ? '#fb7185' : '#4a5568'
+        ctx.lineWidth = 2
+        
+    ctx.beginPath()
+        ctx.moveTo(a.vertices[0].x, a.vertices[0].y)
+        for (let i = 1; i < a.vertices.length; i++) {
+            ctx.lineTo(a.vertices[i].x, a.vertices[i].y)
+        }
+    ctx.closePath()
+    ctx.fill()
+        ctx.stroke()
+
+        // Crater details
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)'
+    ctx.beginPath()
+        ctx.arc(a.size * 0.2, -a.size * 0.1, a.size * 0.2, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.beginPath()
+        ctx.arc(-a.size * 0.3, a.size * 0.2, a.size * 0.15, 0, Math.PI * 2)
+    ctx.fill()
+
+    ctx.restore()
+    })
+
+    // Flash effect
+    if (asteroidGame.flashAlpha > 0) {
+        ctx.fillStyle = `rgba(255, 255, 255, ${asteroidGame.flashAlpha})`
+        ctx.fillRect(0, 0, width, height)
     }
+
+    ctx.restore()
 }
 
 // Observe elements on page load
@@ -511,8 +892,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Kick off continuous blob animation loop (for cursor-based physics)
     requestAnimationFrame(animateBlob)
 
-    // Initialise Night Flight mini-game
-    initFlightGame()
+    // Initialise Asteroid Dodge game
+    initAsteroidGame()
 })
 
 // Page loaded
