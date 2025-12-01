@@ -1425,16 +1425,16 @@ section {
 
 .experience__column--timeline {
   position: relative;
-  padding-left: 1.75rem;
+  padding-left: 2.5rem;
 }
 
 .experience__column--timeline::before {
   content: '';
   position: absolute;
-  left: 0.7rem;
+  left: 0.9rem;
   top: 0.4rem;
   bottom: 0.4rem;
-  width: 1px;
+  width: 2px;
   background: linear-gradient(
     to bottom,
     rgba(148, 163, 184, 0.1),
@@ -1511,15 +1511,16 @@ section {
 .experience__column--timeline .experience__item::before {
   content: '';
   position: absolute;
-  left: 0.7rem;
-  top: 1.2rem;
-  width: 10px;
-  height: 10px;
+  left: -2rem;
+  top: 1.5rem;
+  width: 12px;
+  height: 12px;
   border-radius: 999px;
   background: var(--bg-secondary);
   border: 2px solid var(--primary);
   box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
   transform: translateX(-50%);
+  margin-left: 0.5rem;
 }
 
 .experience__item--education {
@@ -1534,7 +1535,11 @@ section {
   }
 
   .experience__column--timeline {
-    padding-left: 1.25rem;
+    padding-left: 2rem;
+  }
+
+  .experience__column--timeline .experience__item::before {
+    left: -1.5rem;
   }
 }
 
