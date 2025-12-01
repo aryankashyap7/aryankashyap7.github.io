@@ -934,9 +934,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Kick off continuous blob animation loop (for cursor-based physics)
     requestAnimationFrame(animateBlob)
 
-    // Initialize professional cursor glow
-    initCursorGlow()
-
     // Initialize GitHub Activity section
     initGitHubActivity()
 
@@ -958,52 +955,6 @@ document.addEventListener('keydown', (e) => {
         toggleModal()
     }
 })
-
-// ==================== PROFESSIONAL CURSOR GLOW ====================
-const cursorGlow = {
-    element: null,
-    x: 0,
-    y: 0,
-    targetX: 0,
-    targetY: 0,
-    active: false
-}
-
-function initCursorGlow() {
-    cursorGlow.element = document.getElementById('cursorGlow')
-    if (!cursorGlow.element || prefersReducedMotion) return
-
-    document.addEventListener('mousemove', (e) => {
-        cursorGlow.targetX = e.clientX
-        cursorGlow.targetY = e.clientY
-        
-        if (!cursorGlow.active) {
-            cursorGlow.active = true
-            cursorGlow.element.classList.add('active')
-        }
-    })
-
-    document.addEventListener('mouseleave', () => {
-        cursorGlow.active = false
-        cursorGlow.element.classList.remove('active')
-    })
-
-    animateCursorGlow()
-}
-
-function animateCursorGlow() {
-    if (!cursorGlow.element) return
-
-    // Smooth follow with easing
-    const ease = 0.15
-    cursorGlow.x += (cursorGlow.targetX - cursorGlow.x) * ease
-    cursorGlow.y += (cursorGlow.targetY - cursorGlow.y) * ease
-
-    cursorGlow.element.style.left = `${cursorGlow.x}px`
-    cursorGlow.element.style.top = `${cursorGlow.y}px`
-
-    requestAnimationFrame(animateCursorGlow)
-}
 
 // ==================== GITHUB ACTIVITY VISUALIZATION ====================
 const githubActivity = {
