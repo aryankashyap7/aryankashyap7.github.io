@@ -1124,6 +1124,26 @@ section {
   box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
 }
 
+.game__shield--infinite {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fbbf24;
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.8), 0 0 40px rgba(251, 191, 36, 0.4);
+  animation: infinitePulse 1s ease-in-out infinite;
+  line-height: 1;
+}
+
+@keyframes infinitePulse {
+  0%, 100% { 
+    transform: scale(1); 
+    text-shadow: 0 0 20px rgba(251, 191, 36, 0.8), 0 0 40px rgba(251, 191, 36, 0.4);
+  }
+  50% { 
+    transform: scale(1.1); 
+    text-shadow: 0 0 30px rgba(251, 191, 36, 1), 0 0 60px rgba(251, 191, 36, 0.6);
+  }
+}
+
 .game__overlay {
   position: absolute;
   inset: 0;

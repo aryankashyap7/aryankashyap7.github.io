@@ -255,14 +255,17 @@ function initAsteroidGame() {
         // Check Caps Lock state on any keydown for cheat toggle
         const capsLockOn = e.getModifierState('CapsLock')
         if (capsLockOn && !asteroidGame.cheatMode) {
-            // Activate cheat mode
+            // Activate cheat mode - permanent shield
             asteroidGame.cheatMode = true
-            asteroidGame.shields = 999
+            asteroidGame.shieldActive = true
+            asteroidGame.shieldTimer = 9999 // Essentially infinite
             updateShieldDisplay()
             showCheatNotification(true)
         } else if (!capsLockOn && asteroidGame.cheatMode) {
-            // Deactivate cheat mode
+            // Deactivate cheat mode - remove shield
             asteroidGame.cheatMode = false
+            asteroidGame.shieldActive = false
+            asteroidGame.shieldTimer = 0
             asteroidGame.shields = 3
             updateShieldDisplay()
             showCheatNotification(false)
@@ -468,9 +471,10 @@ function startAsteroidGame() {
 
 function resetAsteroidGame() {
     asteroidGame.score = 0
-    asteroidGame.shields = asteroidGame.cheatMode ? 999 : 3
-    asteroidGame.shieldActive = false
-    asteroidGame.shieldTimer = 0
+    asteroidGame.shields = 3
+    // If cheat mode is on, keep shield permanently active
+    asteroidGame.shieldActive = asteroidGame.cheatMode
+    asteroidGame.shieldTimer = asteroidGame.cheatMode ? 9999 : 0
     asteroidGame.difficulty = 1
     asteroidGame.difficultyTimer = 0
     asteroidGame.spawnTimer = 0
@@ -707,8 +711,8 @@ function updateAsteroidGame(dt) {
     ship.trail.forEach(t => t.alpha -= dt * 3)
     ship.trail = ship.trail.filter(t => t.alpha > 0)
     
-    // Update shield timer
-    if (asteroidGame.shieldActive) {
+    // Update shield timer (skip if cheat mode - permanent shield)
+    if (asteroidGame.shieldActive && !asteroidGame.cheatMode) {
         asteroidGame.shieldTimer -= dt
         if (asteroidGame.shieldTimer <= 0) {
             asteroidGame.shieldActive = false
@@ -845,6 +849,21 @@ function updateHUD() {
 function updateShieldDisplay() {
     const shieldsContainer = document.getElementById('gameShields')
     if (!shieldsContainer) return
+    
+    // If cheat mode, show infinity symbol
+    if (asteroidGame.cheatMode) {
+        shieldsContainer.innerHTML = '<span class="game__shield game__shield--infinite">∞</span>'
+        return
+    }
+    
+    // Reset to normal shield display if needed
+    if (shieldsContainer.querySelector('.game__shield--infinite')) {
+        shieldsContainer.innerHTML = `
+            <span class="game__shield active"></span>
+            <span class="game__shield active"></span>
+            <span class="game__shield active"></span>
+        `
+    }
     
     const shields = shieldsContainer.querySelectorAll('.game__shield')
     shields.forEach((shield, i) => {
