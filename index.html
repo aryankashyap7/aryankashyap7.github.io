@@ -642,9 +642,9 @@
                             How long can you survive the chaos of deep space?
                         </p>
                         <ul class="playground__hints">
-                            <li><span>↑ ↓ ← →</span> or <span>W A S D</span> to steer your ship.</li>
-                            <li><span>Space</span> or <span>Click</span> to activate shield burst.</li>
-                            <li>Survive as long as you can - your best run is saved.</li>
+                            <li><span>↑ ↓ ← →</span> or <span>W A S D</span> to steer your ship</li>
+                            <li><span>X</span> shoot · <span>Space</span> shield · <span>B</span> bomb 💣</li>
+                            <li>Collect ⭐ stars & power-ups for bonus points!</li>
                         </ul>
                     </div>
                     <div class="playground__canvas-wrapper">
@@ -668,6 +668,10 @@
                                         <span class="game__shield active"></span>
                                         <span class="game__shield active"></span>
                                     </div>
+                                </div>
+                                <div class="game__hud-item">
+                                    <span class="game__hud-label">💣</span>
+                                    <span class="game__hud-value game__hud-value--bombs" id="gameBombs">1</span>
                                 </div>
                             </div>
                         </div>
@@ -701,9 +705,14 @@
                                     <i class="fa-solid fa-chevron-down"></i>
                                 </button>
                             </div>
-                            <button class="mobile-controls__btn mobile-controls__btn--shield" id="btnShield" aria-label="Activate Shield">
-                                <i class="fa-solid fa-shield"></i>
-                            </button>
+                            <div class="mobile-controls__actions">
+                                <button class="mobile-controls__btn mobile-controls__btn--shield" id="btnShield" aria-label="Activate Shield">
+                                    <i class="fa-solid fa-shield"></i>
+                                </button>
+                                <button class="mobile-controls__btn mobile-controls__btn--bomb" id="btnBomb" aria-label="Use Bomb">
+                                    <i class="fa-solid fa-bomb"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

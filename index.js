@@ -174,7 +174,7 @@ const asteroidGame = {
     cheatMode: false,
     
     // Player
-    ship: { x: 0, y: 0, vx: 0, vy: 0, angle: 0, trail: [] },
+    ship: { x: 0, y: 0, vx: 0, vy: 0, angle: 0, trail: [], baseSpeed: 280 },
     
     // Keyboard input
     keys: { up: false, down: false, left: false, right: false },
@@ -182,17 +182,30 @@ const asteroidGame = {
     // Objects
     asteroids: [],
     particles: [],
-    stars: [],
+    stars: [],           // Background stars
+    bonusStars: [],      // Collectible bonus stars
     powerups: [],
+    lasers: [],
+    
+    // Power-up states
+    powerUpStates: {
+        speedBoost: { active: false, timer: 0 },
+        magnet: { active: false, timer: 0 },
+        slowMo: { active: false, timer: 0 },
+        bomb: { count: 1 }
+    },
     
     // Visual effects
     screenShake: 0,
     flashAlpha: 0,
+    slowMoFactor: 1,
     
     // Timing
     lastTime: 0,
     spawnTimer: 0,
-    difficultyTimer: 0
+    difficultyTimer: 0,
+    powerupSpawnTimer: 0,
+    starSpawnTimer: 0
 }
 
 function initAsteroidGame() {
@@ -250,23 +263,45 @@ function initAsteroidGame() {
                 }
                 e.preventDefault()
                 break
+            case 'b':
+            case 'B':
+                // B for BOMB - explode all asteroids!
+                if (asteroidGame.running && asteroidGame.powerUpStates.bomb.count > 0) {
+                    useBomb()
+                }
+                e.preventDefault()
+                break
+            case 'x':
+            case 'X':
+            case 'j':
+            case 'J':
+                // X or J to SHOOT laser!
+                if (asteroidGame.running) {
+                    shootLaser()
+                }
+                e.preventDefault()
+                break
         }
         
         // Check Caps Lock state on any keydown for cheat toggle
         const capsLockOn = e.getModifierState('CapsLock')
         if (capsLockOn && !asteroidGame.cheatMode) {
-            // Activate cheat mode - permanent shield
+            // Activate cheat mode - permanent shield + speed boost
             asteroidGame.cheatMode = true
             asteroidGame.shieldActive = true
-            asteroidGame.shieldTimer = 9999 // Essentially infinite
+            asteroidGame.shieldTimer = 9999
+            asteroidGame.powerUpStates.speedBoost.active = true
+            asteroidGame.powerUpStates.speedBoost.timer = 9999
             updateShieldDisplay()
             showCheatNotification(true)
         } else if (!capsLockOn && asteroidGame.cheatMode) {
-            // Deactivate cheat mode - remove shield
+            // Deactivate cheat mode
             asteroidGame.cheatMode = false
             asteroidGame.shieldActive = false
             asteroidGame.shieldTimer = 0
             asteroidGame.shields = 3
+            asteroidGame.powerUpStates.speedBoost.active = false
+            asteroidGame.powerUpStates.speedBoost.timer = 0
             updateShieldDisplay()
             showCheatNotification(false)
         }
@@ -374,55 +409,61 @@ function initMobileControls() {
         controlsContainer.classList.add('visible')
     }
     
-    const buttons = {
-        up: document.getElementById('btnUp'),
-        down: document.getElementById('btnDown'),
-        left: document.getElementById('btnLeft'),
-        right: document.getElementById('btnRight'),
-        shield: document.getElementById('btnShield')
+    // Directional buttons
+    const dirButtons = ['btnUp', 'btnDown', 'btnLeft', 'btnRight']
+    const keyMap = { btnUp: 'up', btnDown: 'down', btnLeft: 'left', btnRight: 'right' }
+    
+    dirButtons.forEach(id => {
+        const btn = document.getElementById(id)
+        if (!btn) return
+        const key = keyMap[id]
+        
+        btn.addEventListener('touchstart', (e) => {
+            e.preventDefault()
+            asteroidGame.keys[key] = true
+            btn.classList.add('active')
+            if (!asteroidGame.started && !asteroidGame.gameOver) startAsteroidGame()
+        })
+        
+        btn.addEventListener('touchend', (e) => {
+            e.preventDefault()
+            asteroidGame.keys[key] = false
+            btn.classList.remove('active')
+        })
+        
+        btn.addEventListener('touchcancel', (e) => {
+            e.preventDefault()
+            asteroidGame.keys[key] = false
+            btn.classList.remove('active')
+        })
+    })
+    
+    // Shield button
+    const shieldBtn = document.getElementById('btnShield')
+    if (shieldBtn) {
+        shieldBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault()
+            if (!asteroidGame.started && !asteroidGame.gameOver) {
+                startAsteroidGame()
+            } else if (asteroidGame.gameOver) {
+                resetAsteroidGame()
+                startAsteroidGame()
+            } else if (asteroidGame.running && (asteroidGame.shields > 0 || asteroidGame.cheatMode) && !asteroidGame.shieldActive) {
+                activateShield()
+            }
+        })
     }
     
-    // Handle touch events for directional buttons
-    Object.entries(buttons).forEach(([key, btn]) => {
-        if (!btn) return
-        
-        if (key === 'shield') {
-            btn.addEventListener('touchstart', (e) => {
-                e.preventDefault()
-                if (!asteroidGame.started && !asteroidGame.gameOver) {
-                    startAsteroidGame()
-                } else if (asteroidGame.gameOver) {
-                    resetAsteroidGame()
-                    startAsteroidGame()
-                } else if (asteroidGame.running && (asteroidGame.shields > 0 || asteroidGame.cheatMode) && !asteroidGame.shieldActive) {
-                    activateShield()
-                }
-            })
-        } else {
-            btn.addEventListener('touchstart', (e) => {
-                e.preventDefault()
-                asteroidGame.keys[key] = true
-                btn.classList.add('active')
-                
-                // Start game on first touch
-                if (!asteroidGame.started && !asteroidGame.gameOver) {
-                    startAsteroidGame()
-                }
-            })
-            
-            btn.addEventListener('touchend', (e) => {
-                e.preventDefault()
-                asteroidGame.keys[key] = false
-                btn.classList.remove('active')
-            })
-            
-            btn.addEventListener('touchcancel', (e) => {
-                e.preventDefault()
-                asteroidGame.keys[key] = false
-                btn.classList.remove('active')
-            })
-        }
-    })
+    // Bomb button
+    const bombBtn = document.getElementById('btnBomb')
+    if (bombBtn) {
+        bombBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault()
+            if (asteroidGame.running && asteroidGame.powerUpStates.bomb.count > 0) {
+                useBomb()
+            }
+        })
+    }
 }
 
 function resizeAsteroidCanvas() {
@@ -472,25 +513,41 @@ function startAsteroidGame() {
 function resetAsteroidGame() {
     asteroidGame.score = 0
     asteroidGame.shields = 3
-    // If cheat mode is on, keep shield permanently active
     asteroidGame.shieldActive = asteroidGame.cheatMode
     asteroidGame.shieldTimer = asteroidGame.cheatMode ? 9999 : 0
     asteroidGame.difficulty = 1
     asteroidGame.difficultyTimer = 0
     asteroidGame.spawnTimer = 0
+    asteroidGame.powerupSpawnTimer = 0
+    asteroidGame.starSpawnTimer = 0
+    
+    // Reset arrays
     asteroidGame.asteroids = []
     asteroidGame.particles = []
     asteroidGame.powerups = []
+    asteroidGame.lasers = []
+    asteroidGame.bonusStars = []
+    
+    // Reset ship
     asteroidGame.ship.trail = []
     asteroidGame.ship.vx = 0
     asteroidGame.ship.vy = 0
+    asteroidGame.ship.x = asteroidGame.width / 2
+    asteroidGame.ship.y = asteroidGame.height / 2
+    
     asteroidGame.keys = { up: false, down: false, left: false, right: false }
     asteroidGame.screenShake = 0
     asteroidGame.flashAlpha = 0
+    asteroidGame.slowMoFactor = 1
     asteroidGame.gameOver = false
     
-    asteroidGame.ship.x = asteroidGame.width / 2
-    asteroidGame.ship.y = asteroidGame.height / 2
+    // Reset power-ups (keep cheat mode speed boost if active)
+    asteroidGame.powerUpStates = {
+        speedBoost: { active: asteroidGame.cheatMode, timer: asteroidGame.cheatMode ? 9999 : 0 },
+        magnet: { active: false, timer: 0 },
+        slowMo: { active: false, timer: 0 },
+        bomb: { count: 1 }
+    }
     
     const overlay = document.getElementById('gameOverlay')
     if (overlay) overlay.classList.remove('visible')
@@ -501,7 +558,7 @@ function resetAsteroidGame() {
 
 function activateShield() {
     if (!asteroidGame.cheatMode) {
-        asteroidGame.shields--
+    asteroidGame.shields--
     }
     asteroidGame.shieldActive = true
     asteroidGame.shieldTimer = 1.5 // 1.5 seconds of invincibility
@@ -523,6 +580,175 @@ function activateShield() {
     }
     
     updateShieldDisplay()
+}
+
+// Shoot laser
+function shootLaser() {
+    const { ship } = asteroidGame
+    const speed = 500
+    
+    asteroidGame.lasers.push({
+        x: ship.x,
+        y: ship.y,
+        vx: Math.cos(ship.angle) * speed,
+        vy: Math.sin(ship.angle) * speed,
+        life: 1.5
+    })
+    
+    // Muzzle flash particles
+    for (let i = 0; i < 8; i++) {
+        asteroidGame.particles.push({
+            x: ship.x + Math.cos(ship.angle) * 15,
+            y: ship.y + Math.sin(ship.angle) * 15,
+            vx: Math.cos(ship.angle) * 100 + (Math.random() - 0.5) * 60,
+            vy: Math.sin(ship.angle) * 100 + (Math.random() - 0.5) * 60,
+            life: 0.25,
+            maxLife: 0.25,
+            size: 4,
+            color: '#fbbf24'
+        })
+    }
+}
+
+// Use bomb - clear all asteroids with big explosion
+function useBomb() {
+    asteroidGame.powerUpStates.bomb.count--
+    asteroidGame.screenShake = 20
+    asteroidGame.flashAlpha = 0.9
+    
+    // Destroy all asteroids with explosions
+    asteroidGame.asteroids.forEach(a => {
+        createExplosion(a.x, a.y, a.size * 1.5, 'orange')
+        asteroidGame.score += 5
+    })
+    
+    asteroidGame.asteroids = []
+    
+    // Big shockwave particles
+    for (let i = 0; i < 60; i++) {
+        const angle = (i / 60) * Math.PI * 2
+        asteroidGame.particles.push({
+            x: asteroidGame.ship.x,
+            y: asteroidGame.ship.y,
+            vx: Math.cos(angle) * 350,
+            vy: Math.sin(angle) * 350,
+            life: 1.2,
+            maxLife: 1.2,
+            size: 10,
+            color: i % 2 === 0 ? '#fbbf24' : '#ef4444'
+        })
+    }
+    
+    updateHUD()
+}
+
+// Spawn bonus star (collectible)
+function spawnBonusStar() {
+    const size = 12 + Math.random() * 8
+    asteroidGame.bonusStars.push({
+        x: Math.random() * (asteroidGame.width - 40) + 20,
+        y: -20,
+        vy: 60 + Math.random() * 40,
+        size,
+        rotation: 0,
+        pulse: Math.random() * Math.PI * 2,
+        value: Math.random() > 0.85 ? 50 : (Math.random() > 0.6 ? 25 : 10)
+    })
+}
+
+// Spawn power-up
+function spawnPowerup() {
+    const types = ['magnet', 'slowmo', 'bomb', 'speed']
+    const type = types[Math.floor(Math.random() * types.length)]
+    
+    asteroidGame.powerups.push({
+        x: Math.random() * (asteroidGame.width - 60) + 30,
+        y: -30,
+        vy: 50 + Math.random() * 30,
+        type,
+        size: 22,
+        rotation: 0,
+        pulse: 0
+    })
+}
+
+// Apply power-up effect
+function applyPowerup(type) {
+    const states = asteroidGame.powerUpStates
+    const duration = 8
+    
+    switch(type) {
+        case 'magnet':
+            states.magnet.active = true
+            states.magnet.timer = duration
+            break
+        case 'slowmo':
+            states.slowMo.active = true
+            states.slowMo.timer = duration / 2
+            asteroidGame.slowMoFactor = 0.35
+            break
+        case 'bomb':
+            states.bomb.count = Math.min(states.bomb.count + 1, 3)
+            break
+        case 'speed':
+            states.speedBoost.active = true
+            states.speedBoost.timer = duration
+            break
+    }
+    
+    asteroidGame.flashAlpha = 0.3
+    showPowerupNotification(type)
+    updateHUD()
+}
+
+// Show power-up notification
+function showPowerupNotification(type) {
+    const names = {
+        magnet: '🧲 MAGNET ACTIVE',
+        slowmo: '⏱️ SLOW-MO',
+        bomb: '💣 +1 BOMB',
+        speed: '⚡ SPEED BOOST'
+    }
+    
+    const notification = document.createElement('div')
+    notification.className = 'powerup-notification'
+    notification.textContent = names[type] || type
+    document.body.appendChild(notification)
+    
+    setTimeout(() => notification.classList.add('visible'), 10)
+    setTimeout(() => {
+        notification.classList.remove('visible')
+        setTimeout(() => notification.remove(), 300)
+    }, 1500)
+}
+
+// Update power-up timers
+function updatePowerUpStates(dt) {
+    const states = asteroidGame.powerUpStates
+    
+    // Speed boost (skip timer decay if cheat mode)
+    if (states.speedBoost.active && !asteroidGame.cheatMode) {
+        states.speedBoost.timer -= dt
+        if (states.speedBoost.timer <= 0) {
+            states.speedBoost.active = false
+            states.speedBoost.timer = 0
+        }
+    }
+    
+    // Magnet
+    if (states.magnet.active) {
+        states.magnet.timer -= dt
+        if (states.magnet.timer <= 0) states.magnet.active = false
+    }
+    
+    // Slow-mo
+    if (states.slowMo.active) {
+        states.slowMo.timer -= dt
+        if (states.slowMo.timer <= 0) {
+            states.slowMo.active = false
+            asteroidGame.slowMoFactor = 1
+        }
+    }
 }
 
 function spawnAsteroid() {
@@ -571,13 +797,31 @@ function spawnAsteroid() {
         })
     }
     
+    // Beautiful asteroid color schemes
+    const asteroidColors = [
+        { body: '#1e293b', stroke: '#64748b', glow: '#475569' },      // Slate (common)
+        { body: '#1e293b', stroke: '#64748b', glow: '#475569' },      // Slate (common)
+        { body: '#312e81', stroke: '#818cf8', glow: '#6366f1' },      // Indigo
+        { body: '#164e63', stroke: '#22d3ee', glow: '#06b6d4' },      // Cyan
+        { body: '#7f1d1d', stroke: '#fca5a5', glow: '#f87171' },      // Rose
+        { body: '#78350f', stroke: '#fcd34d', glow: '#fbbf24' },      // Amber
+        { body: '#14532d', stroke: '#86efac', glow: '#4ade80' },      // Emerald
+        { body: '#581c87', stroke: '#c084fc', glow: '#a855f7' },      // Purple
+        { body: '#0c4a6e', stroke: '#7dd3fc', glow: '#38bdf8' },      // Sky
+    ]
+    const colorScheme = asteroidColors[Math.floor(Math.random() * asteroidColors.length)]
+    const hasGlow = Math.random() > 0.4
+    
     asteroidGame.asteroids.push({
         x, y, vx, vy,
         size,
         rotation: 0,
         rotationSpeed: (Math.random() - 0.5) * 3,
         vertices,
-        glow: Math.random() > 0.7 // Some asteroids glow
+        glow: hasGlow && colorScheme.glow,
+        bodyColor: colorScheme.body,
+        strokeColor: colorScheme.stroke,
+        glowColor: colorScheme.glow
     })
 }
 
@@ -641,77 +885,87 @@ function updateGameOverEffects(dt) {
 }
 
 function updateAsteroidGame(dt) {
-    const { ship, asteroids, particles, stars, width, height, keys } = asteroidGame
+    const { ship, asteroids, particles, stars, width, height, keys, powerups, lasers, powerUpStates } = asteroidGame
+    
+    // Apply slow-mo effect
+    const effectiveDt = dt * asteroidGame.slowMoFactor
+    
+    // Update power-up states
+    updatePowerUpStates(dt)
     
     // Update score
-    asteroidGame.score += dt * 10 * asteroidGame.difficulty
+    asteroidGame.score += effectiveDt * 10 * asteroidGame.difficulty
     
     // Increase difficulty over time
-    asteroidGame.difficultyTimer += dt
+    asteroidGame.difficultyTimer += effectiveDt
     if (asteroidGame.difficultyTimer > 8) {
         asteroidGame.difficulty = Math.min(asteroidGame.difficulty + 0.3, 5)
         asteroidGame.difficultyTimer = 0
     }
     
     // Spawn asteroids
-    asteroidGame.spawnTimer += dt
+    asteroidGame.spawnTimer += effectiveDt
     const spawnRate = Math.max(0.4, 1.2 - asteroidGame.difficulty * 0.15)
     if (asteroidGame.spawnTimer > spawnRate) {
         spawnAsteroid()
         asteroidGame.spawnTimer = 0
     }
     
-    // Ship movement with arrow keys (acceleration-based for smooth feel)
+    // Spawn power-ups
+    asteroidGame.powerupSpawnTimer += effectiveDt
+    if (asteroidGame.powerupSpawnTimer > 15) {
+        spawnPowerup()
+        asteroidGame.powerupSpawnTimer = 0
+    }
+    
+    // Spawn bonus stars
+    asteroidGame.starSpawnTimer += effectiveDt
+    if (asteroidGame.starSpawnTimer > 2.5) {
+        spawnBonusStar()
+        asteroidGame.starSpawnTimer = 0
+    }
+    
+    // Ship movement
     const acceleration = 600
     const friction = 4
-    const maxSpeed = 280
+    let maxSpeed = ship.baseSpeed || 280
+    if (powerUpStates.speedBoost.active) maxSpeed *= 1.5
     
-    // Apply acceleration based on keys
-    if (keys.up) ship.vy -= acceleration * dt
-    if (keys.down) ship.vy += acceleration * dt
-    if (keys.left) ship.vx -= acceleration * dt
-    if (keys.right) ship.vx += acceleration * dt
+    if (keys.up) ship.vy -= acceleration * effectiveDt
+    if (keys.down) ship.vy += acceleration * effectiveDt
+    if (keys.left) ship.vx -= acceleration * effectiveDt
+    if (keys.right) ship.vx += acceleration * effectiveDt
     
-    // Apply friction when no keys pressed
-    if (!keys.left && !keys.right) {
-        ship.vx *= (1 - friction * dt)
-    }
-    if (!keys.up && !keys.down) {
-        ship.vy *= (1 - friction * dt)
-    }
+    if (!keys.left && !keys.right) ship.vx *= (1 - friction * effectiveDt)
+    if (!keys.up && !keys.down) ship.vy *= (1 - friction * effectiveDt)
     
-    // Clamp speed
     const speed = Math.hypot(ship.vx, ship.vy)
     if (speed > maxSpeed) {
         ship.vx = (ship.vx / speed) * maxSpeed
         ship.vy = (ship.vy / speed) * maxSpeed
     }
     
-    // Update position
-    ship.x += ship.vx * dt
-    ship.y += ship.vy * dt
+    ship.x += ship.vx * effectiveDt
+    ship.y += ship.vy * effectiveDt
     
-    // Keep ship within bounds
     const margin = 15
     ship.x = Math.max(margin, Math.min(width - margin, ship.x))
     ship.y = Math.max(margin, Math.min(height - margin, ship.y))
     
-    // Bounce off edges slightly
     if (ship.x <= margin || ship.x >= width - margin) ship.vx *= -0.5
     if (ship.y <= margin || ship.y >= height - margin) ship.vy *= -0.5
     
-    // Calculate ship angle based on velocity
     if (Math.abs(ship.vx) > 5 || Math.abs(ship.vy) > 5) {
         ship.angle = Math.atan2(ship.vy, ship.vx)
     }
     
-    // Update ship trail
+    // Ship trail
     ship.trail.unshift({ x: ship.x, y: ship.y, alpha: 1 })
     if (ship.trail.length > 20) ship.trail.pop()
     ship.trail.forEach(t => t.alpha -= dt * 3)
     ship.trail = ship.trail.filter(t => t.alpha > 0)
     
-    // Update shield timer (skip if cheat mode - permanent shield)
+    // Shield timer
     if (asteroidGame.shieldActive && !asteroidGame.cheatMode) {
         asteroidGame.shieldTimer -= dt
         if (asteroidGame.shieldTimer <= 0) {
@@ -719,39 +973,149 @@ function updateAsteroidGame(dt) {
         }
     }
     
+    // Update lasers
+    for (let i = lasers.length - 1; i >= 0; i--) {
+        const l = lasers[i]
+        l.x += l.vx * effectiveDt
+        l.y += l.vy * effectiveDt
+        l.life -= effectiveDt
+        
+        if (l.life <= 0 || l.x < 0 || l.x > width || l.y < 0 || l.y > height) {
+            lasers.splice(i, 1)
+            continue
+        }
+        
+        // Laser-asteroid collision
+        for (let j = asteroids.length - 1; j >= 0; j--) {
+            const a = asteroids[j]
+            const dist = Math.hypot(l.x - a.x, l.y - a.y)
+            if (dist < a.size) {
+                createExplosion(a.x, a.y, a.size * 1.2, 'orange')
+                asteroidGame.score += 10
+                asteroids.splice(j, 1)
+                lasers.splice(i, 1)
+                asteroidGame.screenShake = 3
+                break
+            }
+        }
+    }
+    
     // Update asteroids
     for (let i = asteroids.length - 1; i >= 0; i--) {
         const a = asteroids[i]
-        a.x += a.vx * dt
-        a.y += a.vy * dt
-        a.rotation += a.rotationSpeed * dt
+        a.x += a.vx * effectiveDt
+        a.y += a.vy * effectiveDt
+        a.rotation += a.rotationSpeed * effectiveDt
         
-        // Remove if off screen
-        const margin = a.size * 2
-        if (a.x < -margin || a.x > width + margin || 
-            a.y < -margin || a.y > height + margin) {
+        const offMargin = a.size * 2
+        if (a.x < -offMargin || a.x > width + offMargin || 
+            a.y < -offMargin || a.y > height + offMargin) {
             asteroids.splice(i, 1)
             continue
         }
         
-        // Collision detection with ship
+        // Ship collision
         const distToShip = Math.hypot(a.x - ship.x, a.y - ship.y)
         if (distToShip < a.size * 0.7 + 12) {
             if (asteroidGame.shieldActive) {
-                // Destroy asteroid with shield
-                createExplosion(a.x, a.y, a.size, 'cyan')
+                createExplosion(a.x, a.y, a.size * 1.2, 'cyan')
                 asteroids.splice(i, 1)
+                asteroidGame.screenShake = 5
             } else {
-                // Game over
                 endGame()
                 return
             }
         }
     }
     
-    // Update stars (parallax)
+    // Update power-ups
+    for (let i = powerups.length - 1; i >= 0; i--) {
+        const p = powerups[i]
+        p.y += p.vy * effectiveDt
+        p.rotation += 2 * effectiveDt
+        p.pulse += effectiveDt * 5
+        
+        if (p.y > height + 50) {
+            powerups.splice(i, 1)
+            continue
+        }
+        
+        // Magnet effect
+        if (powerUpStates.magnet.active) {
+            const dx = ship.x - p.x
+            const dy = ship.y - p.y
+            const dist = Math.hypot(dx, dy)
+            if (dist < 200 && dist > 0) {
+                p.x += (dx / dist) * 200 * effectiveDt
+                p.y += (dy / dist) * 200 * effectiveDt
+            }
+        }
+        
+        // Collect power-up
+        const dist = Math.hypot(p.x - ship.x, p.y - ship.y)
+        if (dist < p.size + 15) {
+            applyPowerup(p.type)
+            powerups.splice(i, 1)
+            
+            // Sparkle particles
+            for (let j = 0; j < 12; j++) {
+                particles.push({
+                    x: p.x, y: p.y,
+                    vx: (Math.random() - 0.5) * 150,
+                    vy: (Math.random() - 0.5) * 150,
+                    life: 0.5, maxLife: 0.5,
+                    size: 5, color: '#22c55e'
+                })
+            }
+        }
+    }
+    
+    // Update bonus stars
+    const bonusStars = asteroidGame.bonusStars
+    for (let i = bonusStars.length - 1; i >= 0; i--) {
+        const s = bonusStars[i]
+        s.y += s.vy * effectiveDt
+        s.rotation += 3 * effectiveDt
+        s.pulse += effectiveDt * 4
+        
+        if (s.y > height + 30) {
+            bonusStars.splice(i, 1)
+            continue
+        }
+        
+        // Magnet effect for stars too!
+        if (powerUpStates.magnet.active) {
+            const dx = ship.x - s.x
+            const dy = ship.y - s.y
+            const dist = Math.hypot(dx, dy)
+            if (dist < 250 && dist > 0) {
+                s.x += (dx / dist) * 250 * effectiveDt
+                s.y += (dy / dist) * 250 * effectiveDt
+            }
+        }
+        
+        // Collect star
+        const dist = Math.hypot(s.x - ship.x, s.y - ship.y)
+        if (dist < s.size + 15) {
+            asteroidGame.score += s.value
+            bonusStars.splice(i, 1)
+            
+            // Golden sparkle particles
+            for (let j = 0; j < 10; j++) {
+                particles.push({
+                    x: s.x, y: s.y,
+                    vx: (Math.random() - 0.5) * 120,
+                    vy: (Math.random() - 0.5) * 120,
+                    life: 0.4, maxLife: 0.4,
+                    size: 4, color: '#fbbf24'
+                })
+            }
+        }
+    }
+    
+    // Update stars
     stars.forEach(s => {
-        s.y += s.speed * dt
+        s.y += s.speed * effectiveDt
         if (s.y > height) {
             s.y = 0
             s.x = Math.random() * width
@@ -761,28 +1125,18 @@ function updateAsteroidGame(dt) {
     // Update particles
     for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i]
-        p.x += p.vx * dt
-        p.y += p.vy * dt
+        p.x += p.vx * effectiveDt
+        p.y += p.vy * effectiveDt
         p.life -= dt
-        p.vx *= 0.98
-        p.vy *= 0.98
-        
-        if (p.life <= 0) {
-            particles.splice(i, 1)
-        }
+        p.vx *= 0.97
+        p.vy *= 0.97
+        if (p.life <= 0) particles.splice(i, 1)
     }
     
-    // Update screen shake
-    if (asteroidGame.screenShake > 0) {
-        asteroidGame.screenShake -= dt * 10
-    }
+    // Effects decay
+    if (asteroidGame.screenShake > 0) asteroidGame.screenShake -= dt * 12
+    if (asteroidGame.flashAlpha > 0) asteroidGame.flashAlpha -= dt * 3
     
-    // Update flash
-    if (asteroidGame.flashAlpha > 0) {
-        asteroidGame.flashAlpha -= dt * 2
-    }
-    
-    // Update HUD
     updateHUD()
 }
 
@@ -841,9 +1195,11 @@ function endGame() {
 function updateHUD() {
     const scoreEl = document.getElementById('gameScore')
     const bestEl = document.getElementById('gameBest')
+    const bombsEl = document.getElementById('gameBombs')
     
     if (scoreEl) scoreEl.textContent = Math.floor(asteroidGame.score)
     if (bestEl) bestEl.textContent = asteroidGame.bestScore
+    if (bombsEl) bombsEl.textContent = asteroidGame.powerUpStates.bomb.count
 }
 
 function updateShieldDisplay() {
@@ -876,8 +1232,10 @@ function updateShieldDisplay() {
 }
 
 function renderAsteroidGame() {
-    const { ctx, width, height, ship, asteroids, particles, stars } = asteroidGame
+    const { ctx, width, height, ship, asteroids, particles, stars, lasers, powerups, powerUpStates } = asteroidGame
     if (!ctx || width === 0 || height === 0) return
+    
+    const isGolden = powerUpStates.speedBoost.active
 
     ctx.save()
     
@@ -914,14 +1272,117 @@ function renderAsteroidGame() {
         ctx.globalAlpha = 1
     })
 
-    // Draw ship trail
+    // Draw bonus stars ⭐
+    const bonusStars = asteroidGame.bonusStars
+    bonusStars.forEach(s => {
+        ctx.save()
+        ctx.translate(s.x, s.y)
+        ctx.rotate(s.rotation)
+        
+        const pulse = Math.sin(s.pulse) * 0.2 + 0.8
+        
+        // Star glow
+        const starGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, s.size * 2.5)
+        starGlow.addColorStop(0, 'rgba(251, 191, 36, 0.6)')
+        starGlow.addColorStop(0.5, 'rgba(251, 191, 36, 0.2)')
+        starGlow.addColorStop(1, 'rgba(251, 191, 36, 0)')
+        ctx.fillStyle = starGlow
+        ctx.beginPath()
+        ctx.arc(0, 0, s.size * 2.5 * pulse, 0, Math.PI * 2)
+        ctx.fill()
+        
+        // Draw 5-pointed star shape
+        const starColor = s.value >= 50 ? '#a855f7' : (s.value >= 25 ? '#22d3ee' : '#fbbf24')
+        ctx.fillStyle = starColor
+        ctx.beginPath()
+        for (let i = 0; i < 5; i++) {
+            const angle = (i * 2 * Math.PI / 5) - Math.PI / 2
+            const outerX = Math.cos(angle) * s.size * pulse
+            const outerY = Math.sin(angle) * s.size * pulse
+            const innerAngle = angle + Math.PI / 5
+            const innerX = Math.cos(innerAngle) * s.size * 0.4 * pulse
+            const innerY = Math.sin(innerAngle) * s.size * 0.4 * pulse
+            
+            if (i === 0) ctx.moveTo(outerX, outerY)
+            else ctx.lineTo(outerX, outerY)
+            ctx.lineTo(innerX, innerY)
+        }
+        ctx.closePath()
+        ctx.fill()
+        
+        // Star highlight
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
+        ctx.beginPath()
+        ctx.arc(-s.size * 0.2, -s.size * 0.2, s.size * 0.25, 0, Math.PI * 2)
+        ctx.fill()
+        
+        ctx.restore()
+    })
+
+    // Draw power-ups
+    powerups.forEach(p => {
+        ctx.save()
+        ctx.translate(p.x, p.y)
+        
+        const pulse = Math.sin(p.pulse) * 0.3 + 0.7
+        const glowSize = p.size * 2 * pulse
+        const colors = { magnet: '#a855f7', slowmo: '#38bdf8', bomb: '#ef4444', speed: '#fbbf24' }
+        const color = colors[p.type] || '#fff'
+        
+        // Glow
+        const pwrGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, glowSize)
+        pwrGlow.addColorStop(0, color + '60')
+        pwrGlow.addColorStop(1, color + '00')
+        ctx.fillStyle = pwrGlow
+        ctx.beginPath()
+        ctx.arc(0, 0, glowSize, 0, Math.PI * 2)
+        ctx.fill()
+        
+        // Icon background
+        ctx.fillStyle = color
+        ctx.beginPath()
+        ctx.arc(0, 0, p.size, 0, Math.PI * 2)
+        ctx.fill()
+        
+        // Icon
+        ctx.fillStyle = '#fff'
+        ctx.font = `bold ${p.size}px Arial`
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        const icons = { magnet: '🧲', slowmo: '⏱', bomb: '💣', speed: '⚡' }
+        ctx.fillText(icons[p.type] || '?', 0, 1)
+        
+        ctx.restore()
+    })
+
+    // Draw lasers
+    lasers.forEach(l => {
+        const laserGrad = ctx.createLinearGradient(l.x - l.vx * 0.02, l.y - l.vy * 0.02, l.x, l.y)
+        laserGrad.addColorStop(0, 'rgba(251, 191, 36, 0)')
+        laserGrad.addColorStop(1, '#fbbf24')
+        ctx.strokeStyle = laserGrad
+        ctx.lineWidth = 5
+        ctx.lineCap = 'round'
+        ctx.beginPath()
+        ctx.moveTo(l.x - l.vx * 0.04, l.y - l.vy * 0.04)
+        ctx.lineTo(l.x, l.y)
+        ctx.stroke()
+        
+        // Laser glow
+        ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)'
+        ctx.lineWidth = 10
+        ctx.stroke()
+    })
+
+    // Draw ship trail (golden if speed boost)
+    const trailColor = isGolden ? '251, 191, 36' : '56, 189, 248'
     ship.trail.forEach((t, i) => {
         const alpha = t.alpha * 0.5
         const size = 6 * (1 - i / ship.trail.length)
         ctx.beginPath()
         const gradient = ctx.createRadialGradient(t.x, t.y, 0, t.x, t.y, size)
-        gradient.addColorStop(0, `rgba(56, 189, 248, ${alpha})`)
-        gradient.addColorStop(1, 'rgba(56, 189, 248, 0)')
+        gradient.addColorStop(0, `rgba(${trailColor}, ${alpha})`)
+        gradient.addColorStop(1, `rgba(${trailColor}, 0)`)
         ctx.fillStyle = gradient
         ctx.arc(t.x, t.y, size, 0, Math.PI * 2)
         ctx.fill()
@@ -932,33 +1393,35 @@ function renderAsteroidGame() {
     ctx.translate(ship.x, ship.y)
     ctx.rotate(ship.angle + Math.PI / 2)
     
-    // Ship glow
-    const shipGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, 25)
-    shipGlow.addColorStop(0, 'rgba(56, 189, 248, 0.4)')
-    shipGlow.addColorStop(1, 'rgba(56, 189, 248, 0)')
+    // Ship glow (golden if speed boost/cheat)
+    const glowColor = isGolden ? 'rgba(251, 191, 36,' : 'rgba(56, 189, 248,'
+    const shipGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, 30)
+    shipGlow.addColorStop(0, glowColor + '0.5)')
+    shipGlow.addColorStop(1, glowColor + '0)')
     ctx.fillStyle = shipGlow
     ctx.beginPath()
-    ctx.arc(0, 0, 25, 0, Math.PI * 2)
+    ctx.arc(0, 0, 30, 0, Math.PI * 2)
     ctx.fill()
     
-    // Shield effect
+    // Shield effect (golden if cheat mode)
     if (asteroidGame.shieldActive) {
         const shieldPulse = Math.sin(performance.now() / 50) * 0.3 + 0.7
-        ctx.strokeStyle = `rgba(56, 189, 248, ${shieldPulse})`
+        const shieldColor = isGolden ? 'rgba(251, 191, 36,' : 'rgba(56, 189, 248,'
+        ctx.strokeStyle = shieldColor + shieldPulse + ')'
         ctx.lineWidth = 3
         ctx.beginPath()
         ctx.arc(0, 0, 22, 0, Math.PI * 2)
         ctx.stroke()
         
-        ctx.strokeStyle = `rgba(34, 211, 238, ${shieldPulse * 0.5})`
+        ctx.strokeStyle = shieldColor + (shieldPulse * 0.5) + ')'
     ctx.lineWidth = 1
         ctx.beginPath()
         ctx.arc(0, 0, 28, 0, Math.PI * 2)
         ctx.stroke()
     }
 
-    // Ship body (triangle)
-    ctx.fillStyle = '#38bdf8'
+    // Ship body (golden if speed boost/cheat)
+    ctx.fillStyle = isGolden ? '#fbbf24' : '#38bdf8'
         ctx.beginPath()
     ctx.moveTo(0, -14)
     ctx.lineTo(-10, 10)
@@ -968,7 +1431,7 @@ function renderAsteroidGame() {
         ctx.fill()
 
     // Ship highlight
-    ctx.fillStyle = '#7dd3fc'
+    ctx.fillStyle = isGolden ? '#fde047' : '#7dd3fc'
         ctx.beginPath()
     ctx.moveTo(0, -10)
     ctx.lineTo(-4, 4)
@@ -977,18 +1440,19 @@ function renderAsteroidGame() {
         ctx.closePath()
         ctx.fill()
     
-    // Engine glow
+    // Engine glow (bigger when speed boost)
+    const engineSize = isGolden ? 6 : 4
     ctx.fillStyle = '#fbbf24'
     ctx.beginPath()
-    ctx.arc(0, 12, 4, 0, Math.PI * 2)
+    ctx.arc(0, 12, engineSize, 0, Math.PI * 2)
     ctx.fill()
     
-    const engineGlow = ctx.createRadialGradient(0, 12, 0, 0, 12, 12)
-    engineGlow.addColorStop(0, 'rgba(251, 191, 36, 0.6)')
+    const engineGlow = ctx.createRadialGradient(0, 12, 0, 0, 12, isGolden ? 18 : 12)
+    engineGlow.addColorStop(0, 'rgba(251, 191, 36, 0.8)')
     engineGlow.addColorStop(1, 'rgba(251, 191, 36, 0)')
     ctx.fillStyle = engineGlow
     ctx.beginPath()
-    ctx.arc(0, 12, 12, 0, Math.PI * 2)
+    ctx.arc(0, 12, isGolden ? 18 : 12, 0, Math.PI * 2)
     ctx.fill()
 
     ctx.restore()
@@ -999,20 +1463,21 @@ function renderAsteroidGame() {
         ctx.translate(a.x, a.y)
         ctx.rotate(a.rotation)
         
-        // Asteroid glow (for glowing asteroids)
-        if (a.glow) {
-            const glowGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, a.size * 1.5)
-            glowGrad.addColorStop(0, 'rgba(251, 113, 133, 0.3)')
-            glowGrad.addColorStop(1, 'rgba(251, 113, 133, 0)')
+        // Asteroid glow (colorful)
+        if (a.glow && a.glowColor) {
+            const glowGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, a.size * 1.6)
+            glowGrad.addColorStop(0, a.glowColor + '50')
+            glowGrad.addColorStop(0.5, a.glowColor + '20')
+            glowGrad.addColorStop(1, a.glowColor + '00')
             ctx.fillStyle = glowGrad
             ctx.beginPath()
-            ctx.arc(0, 0, a.size * 1.5, 0, Math.PI * 2)
+            ctx.arc(0, 0, a.size * 1.6, 0, Math.PI * 2)
             ctx.fill()
         }
         
-        // Asteroid body
-        ctx.fillStyle = a.glow ? '#4a3f4f' : '#2d3748'
-        ctx.strokeStyle = a.glow ? '#fb7185' : '#4a5568'
+        // Asteroid body (use custom colors)
+        ctx.fillStyle = a.bodyColor || '#2d3748'
+        ctx.strokeStyle = a.strokeColor || '#4a5568'
         ctx.lineWidth = 2
         
     ctx.beginPath()
@@ -1024,8 +1489,8 @@ function renderAsteroidGame() {
     ctx.fill()
         ctx.stroke()
 
-        // Crater details
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)'
+        // Crater details (darker shade)
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.25)'
     ctx.beginPath()
         ctx.arc(a.size * 0.2, -a.size * 0.1, a.size * 0.2, 0, Math.PI * 2)
     ctx.fill()
@@ -1035,6 +1500,15 @@ function renderAsteroidGame() {
 
     ctx.restore()
     })
+
+    // Slow-mo vignette effect
+    if (asteroidGame.slowMoFactor < 1) {
+        const vignetteGrad = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width * 0.7)
+        vignetteGrad.addColorStop(0, 'rgba(56, 189, 248, 0)')
+        vignetteGrad.addColorStop(1, 'rgba(56, 189, 248, 0.25)')
+        ctx.fillStyle = vignetteGrad
+        ctx.fillRect(0, 0, width, height)
+    }
 
     // Flash effect
     if (asteroidGame.flashAlpha > 0) {
