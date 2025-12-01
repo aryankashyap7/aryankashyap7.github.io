@@ -469,10 +469,52 @@ function stepAsteroidGame(timestamp) {
 
     if (asteroidGame.running && !asteroidGame.gameOver) {
         updateAsteroidGame(dt)
+    } else {
+        // Still update visual effects even when game is over
+        updateGameOverEffects(dt)
     }
     
     renderAsteroidGame()
     requestAnimationFrame(stepAsteroidGame)
+}
+
+function updateGameOverEffects(dt) {
+    const { particles, stars, width } = asteroidGame
+    
+    // Decay screen shake
+    if (asteroidGame.screenShake > 0) {
+        asteroidGame.screenShake -= dt * 15
+        if (asteroidGame.screenShake < 0) asteroidGame.screenShake = 0
+    }
+    
+    // Decay flash
+    if (asteroidGame.flashAlpha > 0) {
+        asteroidGame.flashAlpha -= dt * 3
+        if (asteroidGame.flashAlpha < 0) asteroidGame.flashAlpha = 0
+    }
+    
+    // Update particles
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i]
+        p.x += p.vx * dt
+        p.y += p.vy * dt
+        p.life -= dt
+        p.vx *= 0.96
+        p.vy *= 0.96
+        
+        if (p.life <= 0) {
+            particles.splice(i, 1)
+        }
+    }
+    
+    // Keep stars moving
+    stars.forEach(s => {
+        s.y += s.speed * dt * 0.3
+        if (s.y > asteroidGame.height) {
+            s.y = 0
+            s.x = Math.random() * width
+        }
+    })
 }
 
 function updateAsteroidGame(dt) {
@@ -651,8 +693,8 @@ function endGame() {
     
     // Create big explosion at ship
     createExplosion(asteroidGame.ship.x, asteroidGame.ship.y, 40, 'orange')
-    asteroidGame.screenShake = 15
-    asteroidGame.flashAlpha = 0.8
+    asteroidGame.screenShake = 8
+    asteroidGame.flashAlpha = 0.5
     
     // Update best score
     const finalScore = Math.floor(asteroidGame.score)
