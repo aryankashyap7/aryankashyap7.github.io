@@ -642,9 +642,10 @@
                             How long can you survive the chaos of deep space?
                         </p>
                         <ul class="playground__hints">
-                            <li><span>↑ ↓ ← →</span> or <span>W A S D</span> to steer your ship.</li>
-                            <li><span>Space</span> or <span>Click</span> to activate shield burst.</li>
-                            <li>Survive as long as you can - your best run is saved.</li>
+                            <li><span>↑ ↓ ← →</span> or <span>W A S D</span> to steer your ship</li>
+                            <li><span>X</span> or <span>J</span> to shoot lasers</li>
+                            <li><span>Space</span> to activate shield · <span>B</span> to use bomb</li>
+                            <li><span>Shift</span> to dash · Collect power-ups & gems!</li>
                         </ul>
                     </div>
                     <div class="playground__canvas-wrapper">
@@ -654,10 +655,15 @@
                                 <div class="game__hud-item">
                                     <span class="game__hud-label">Score</span>
                                     <span class="game__hud-value" id="gameScore">0</span>
+                                    <span class="game__hud-multiplier" id="gameMultiplier"></span>
                                 </div>
                                 <div class="game__hud-item">
                                     <span class="game__hud-label">Best</span>
                                     <span class="game__hud-value game__hud-value--best" id="gameBest">0</span>
+                                </div>
+                                <div class="game__hud-item">
+                                    <span class="game__hud-label">Wave</span>
+                                    <span class="game__hud-value game__hud-value--wave" id="gameWave">1</span>
                                 </div>
                             </div>
                             <div class="game__hud-right">
@@ -668,6 +674,14 @@
                                         <span class="game__shield active"></span>
                                         <span class="game__shield active"></span>
                                     </div>
+                                </div>
+                                <div class="game__hud-item">
+                                    <span class="game__hud-label">💣</span>
+                                    <span class="game__hud-value game__hud-value--bombs" id="gameBombs">1</span>
+                                </div>
+                                <div class="game__hud-item">
+                                    <span class="game__hud-label">💎</span>
+                                    <span class="game__hud-value game__hud-value--gems" id="gameGems">0</span>
                                 </div>
                             </div>
                         </div>
@@ -701,9 +715,17 @@
                                     <i class="fa-solid fa-chevron-down"></i>
                                 </button>
                             </div>
-                            <button class="mobile-controls__btn mobile-controls__btn--shield" id="btnShield" aria-label="Activate Shield">
-                                <i class="fa-solid fa-shield"></i>
-                            </button>
+                            <div class="mobile-controls__actions">
+                                <button class="mobile-controls__btn mobile-controls__btn--shoot" id="btnShoot" aria-label="Shoot">
+                                    <i class="fa-solid fa-crosshairs"></i>
+                                </button>
+                                <button class="mobile-controls__btn mobile-controls__btn--shield" id="btnShield" aria-label="Activate Shield">
+                                    <i class="fa-solid fa-shield"></i>
+                                </button>
+                                <button class="mobile-controls__btn mobile-controls__btn--bomb" id="btnBomb" aria-label="Use Bomb">
+                                    <i class="fa-solid fa-bomb"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
