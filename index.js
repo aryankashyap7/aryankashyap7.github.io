@@ -1519,6 +1519,38 @@ function renderAsteroidGame() {
     ctx.restore()
 }
 
+// Initialize project video previews (autoplay on hover)
+function initProjectVideos() {
+    const videoWrappers = document.querySelectorAll('.project__wrapper--video')
+    
+    videoWrappers.forEach(wrapper => {
+        const video = wrapper.querySelector('.project__video')
+        if (!video) return
+        
+        // Play video on hover
+        wrapper.addEventListener('mouseenter', () => {
+            video.play().catch(() => {
+                // Autoplay may be blocked - that's okay
+            })
+        })
+        
+        // Pause and reset on mouse leave
+        wrapper.addEventListener('mouseleave', () => {
+            video.pause()
+            video.currentTime = 0
+        })
+        
+        // For touch devices, play on tap
+        wrapper.addEventListener('touchstart', () => {
+            if (video.paused) {
+                video.play().catch(() => {})
+            } else {
+                video.pause()
+            }
+        })
+    })
+}
+
 // Observe elements on page load
 document.addEventListener('DOMContentLoaded', () => {
     // Set dark theme as default
@@ -1551,6 +1583,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialise Asteroid Dodge game
     initAsteroidGame()
+    
+    // Initialize project video previews
+    initProjectVideos()
 })
 
 // Page loaded

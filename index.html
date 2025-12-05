@@ -286,53 +286,115 @@
                         A few systems and experiments that show how I think about ML products, infra, and orchestration.
                     </p>
                     <ul class="project__list">
-                        <!-- 1. InfraSage -->
+                        <!-- 1. CareLens 360 - FEATURED (Top 10 in Google Cloud Run Hackathon) -->
+                        <li class="project project--featured">
+                            <div class="project__wrapper">
+                                <img src="./assets/carelens360.webp" class="project__img" alt="CareLens 360 - Unified Health Data Platform" />
+                                <span class="project__badge">🏆 Top 10 / 6000 Teams</span>
+                                <div class="project__wrapper--bg"></div>
+                                <div class="project__description">
+                                    <h3 class="project__description--title">CareLens 360 · Unified Health Data Platform</h3>
+                                    <h4 class="project__description--sub-title">
+                                        <i class="devicon-googlecloud-plain"></i> Google Cloud Run + Gemini AI
+                                    </h4>
+                                    <p class="project__description--para">
+                                        I've watched people struggle with scattered medical records across dozens of systems. CareLens solves that, transforming PDFs, wearables data, and lab reports into one intelligent timeline. The platform normalizes data from EHR systems and manual uploads, uses Gemini for trend analysis and anomaly detection, and gives patients a complete view of their health journey. Competed solo and landed Top 10 among 6000 teams.
+                                    </p>
+                                    <div class="project__description--links">
+                                        <a href="https://carelens-360-1097432522480.us-central1.run.app/" target="_blank" class="project__description--link">
+                                            <i class="fa-solid fa-link"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- 2. InfraSage -->
                         <li class="project">
                             <div class="project__wrapper">
-                                <div class="project__img project__img--placeholder"></div>
+                                <img src="./assets/infrasage.png" class="project__img" alt="InfraSage - AI DevOps Assistant" />
+                                <span class="project__badge project__badge--confidential">🔒 Enterprise</span>
                                 <div class="project__wrapper--bg"></div>
                                 <div class="project__description">
                                     <h3 class="project__description--title">InfraSage · AI Assistant for DevOps Automation</h3>
                                     <h4 class="project__description--sub-title">
-                                        <i class="fa-solid fa-robot"></i> LLM‑driven DevOps orchestrator
+                                        <i class="fa-solid fa-robot"></i> Llama 4 + Qdrant RAG
                                     </h4>
                                     <p class="project__description--para">
-                                        ▹ Multi‑modal AI assistant for infrastructure automation using Llama 4 APIs and an MVP‑style orchestrator. <br />
-                                        ▹ Hybrid RAG with Qdrant over Jira, Confluence and Bitbucket for context‑aware decisions. <br />
-                                        ▹ Adaptive command engine to open tickets, deploy infra and monitor services autonomously. <br />
-                                        ▹ Intelligent fault diagnosis and root‑cause analysis, reducing MTTR for incidents. <br />
+                                        An AI copilot that actually understands your infrastructure. Built a multi-modal orchestrator using Llama 4 that pulls context from Jira, Confluence, and Bitbucket via hybrid RAG with Qdrant. It doesn't just answer questions. It creates tickets, deploys infrastructure, and diagnoses faults autonomously. Cut mean time to resolution by 67% across services.
                                     </p>
                                     <div class="project__description--links">
-                                        <a href="#" class="project__description--link">
+                                        <span class="project__description--confidential">
+                                            <i class="fa-solid fa-lock"></i> Confidential
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- 3. Translate AI -->
+                        <li class="project">
+                            <div class="project__wrapper">
+                                <img src="./assets/translate-ai.gif" class="project__img" alt="Translate AI - Universal Translation Engine" />
+                                <span class="project__badge project__badge--confidential">🔒 Enterprise</span>
+                                <div class="project__wrapper--bg"></div>
+                                <div class="project__description">
+                                    <h3 class="project__description--title">Translate AI · Universal Multilingual Translation Engine</h3>
+                                    <h4 class="project__description--sub-title">
+                                        <i class="devicon-python-plain"></i> Hybrid LLM + Amazon Translate
+                                    </h4>
+                                    <p class="project__description--para">
+                                        Production translation pipeline that handles the messy reality of enterprise documents: XML, JSON, CSV, PDF, you name it. Hybrid approach combining LLMs with Amazon Translate, smart batching for 65K+ strings, and back-translation QA to catch semantic drift. Hitting 92% accuracy with an 87% similarity threshold that actually preserves meaning.
+                                    </p>
+                                    <div class="project__description--links">
+                                        <span class="project__description--confidential">
+                                            <i class="fa-solid fa-lock"></i> Confidential
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- 4. Agrisense Smart Harvest (KissanAI) -->
+                        <li class="project">
+                            <div class="project__wrapper">
+                                <img src="./assets/KissanAI.jpg" class="project__img" alt="Agrisense Smart Harvest - ML Agriculture Platform" />
+                                <div class="project__wrapper--bg"></div>
+                                <div class="project__description">
+                                    <h3 class="project__description--title">Agrisense Smart Harvest · ML-Driven Precision Agriculture</h3>
+                                    <h4 class="project__description--sub-title">
+                                        <i class="fa-solid fa-leaf"></i> Computer Vision + TensorFlow
+                                    </h4>
+                                    <p class="project__description--para">
+                                        Precision agriculture for farmers who need it most. Computer vision models hitting 98.2% yield prediction and 99.3% disease detection. The real challenge? Making it work offline in rural areas with spotty connectivity. Built a mobile-first dashboard with multilingual support so farmers can actually use it in the field.
+                                    </p>
+                                    <div class="project__description--links">
+                                        <a href="https://github.com/aryankashyap7/Kisaan-AI" target="_blank" class="project__description--link">
                                             <i class="fa-brands fa-github"></i>
-                                        </a>
-                                        <a href="#" class="project__description--link">
-                                            <i class="fa-solid fa-link"></i>
                                         </a>
                                     </div>
                                 </div>
                             </div>
                         </li>
-                        <!-- 2. Translate AI -->
+
+                        <!-- 5. CheatSheets for Developers -->
                         <li class="project">
                             <div class="project__wrapper">
-                                <div class="project__img project__img--placeholder"></div>
+                                <img src="./assets/CheatSheet.png" class="project__img" alt="CheatSheets for Developers" />
                                 <div class="project__wrapper--bg"></div>
                                 <div class="project__description">
-                                    <h3 class="project__description--title">Translate AI · Universal Translation Engine</h3>
+                                    <h3 class="project__description--title">CheatSheets for Developers · Developer's Notebook</h3>
                                     <h4 class="project__description--sub-title">
-                                        <i class="devicon-python-plain"></i> Hybrid LLM + MT pipeline
+                                        <i class="devicon-javascript-plain"></i> Astro + GitHub API
                                     </h4>
                                     <p class="project__description--para">
-                                        ▹ End‑to‑end pipeline for parsing and translating structured documents (XML, JSON, CSV, PDF). <br />
-                                        ▹ Hybrid LLM + Amazon Translate stack with batching, retries and concurrency for 65K+ strings. <br />
-                                        ▹ Back‑translation similarity checks and LLM‑based QA to preserve semantics across languages. <br />
+                                        We've all been there. You know the command exists, you just can't remember the exact syntax. Built this as a searchable reference for 54+ languages and tools. No more digging through Stack Overflow for that one Git command you use twice a year.
                                     </p>
                                     <div class="project__description--links">
-                                        <a href="#" class="project__description--link">
+                                        <a href="https://github.com/aryankashyap7/CheatSheets-for-Developers" target="_blank" class="project__description--link">
                                             <i class="fa-brands fa-github"></i>
                                         </a>
-                                        <a href="#" class="project__description--link">
+                                        <a href="https://cheats.dhr.wtf/" target="_blank" class="project__description--link">
                                             <i class="fa-solid fa-link"></i>
                                         </a>
                                     </div>
@@ -340,26 +402,24 @@
                             </div>
                         </li>
 
-                        <!-- 3. Agrisense Smart Harvest -->
+                        <!-- 6. Frontend Maniac -->
                         <li class="project">
                             <div class="project__wrapper">
-                                <div class="project__img project__img--placeholder"></div>
+                                <img src="./assets/frontend-maniac.png" class="project__img" alt="Frontend Maniac - Creative Frontend Projects" />
                                 <div class="project__wrapper--bg"></div>
                                 <div class="project__description">
-                                    <h3 class="project__description--title">Agrisense Smart Harvest</h3>
+                                    <h3 class="project__description--title">Frontend Maniac · Creative Frontend Playground</h3>
                                     <h4 class="project__description--sub-title">
-                                        <i class="fa-solid fa-leaf"></i> ML‑driven precision agriculture
+                                        <i class="devicon-html5-plain"></i> HTML + Vanilla CSS/JS
                                     </h4>
                                     <p class="project__description--para">
-                                        ▹ Computer‑vision based crop monitoring with yield prediction and disease detection at field scale. <br />
-                                        ▹ Recommendation system for interventions based on real‑time crop health signals. <br />
-                                        ▹ Mobile‑responsive farmer dashboard with multilingual support and offline‑first UX for rural usage. <br />
+                                        A collection of wild frontend experiments I built while learning. No frameworks, no dependencies, just vanilla HTML, CSS, and JavaScript pushing the limits of what's possible in the browser. Every project taught me something new about the web platform.
                                     </p>
                                     <div class="project__description--links">
-                                        <a href="#" class="project__description--link">
+                                        <a href="https://github.com/aryankashyap7/frontend-maniac" target="_blank" class="project__description--link">
                                             <i class="fa-brands fa-github"></i>
                                         </a>
-                                        <a href="#" class="project__description--link">
+                                        <a href="https://frontendmaniac.netlify.app" target="_blank" class="project__description--link">
                                             <i class="fa-solid fa-link"></i>
                                         </a>
                                     </div>
@@ -367,7 +427,7 @@
                             </div>
                         </li>
 
-                        <!-- Earlier ML work -->
+                        <!-- 7. Facial Image Classification -->
                         <li class="project">
                             <div class="project__wrapper">
                                 <img src="./assets/FIC.gif" class="project__img" alt="Facial Image Classification demo" />
@@ -375,24 +435,21 @@
                                 <div class="project__description">
                                     <h3 class="project__description--title">Facial Image Classification</h3>
                                     <h4 class="project__description--sub-title">
-                                        <i class="fa-solid fa-robot"></i> Classic ML experimentation
+                                        <i class="fa-solid fa-robot"></i> SVM + Haar Cascade
                                     </h4>
                                     <p class="project__description--para">
-                                        ▹ SVM‑based facial image classifier with Haar cascade for face detection and model fine‑tuning. <br />
-                                        ▹ Flask API wrapper and AWS deployment as an early ML productionisation exercise. <br />
+                                        One of my first ML projects: a facial classifier using SVM with Haar cascade for detection. Wrapped it in a Flask API and deployed to AWS. Simple by today's standards, but it taught me everything about taking a model from notebook to production.
                                     </p>
                                     <div class="project__description--links">
-                                        <a href="https://github.com/aryankashyap7/Facial-Image-Classification" class="project__description--link">
+                                        <a href="https://github.com/aryankashyap7/Facial-Image-Classification" target="_blank" class="project__description--link">
                                             <i class="fa-brands fa-github"></i>
-                                        </a>
-                                        <a href="https://github.com/aryankashyap7/Facial-Image-Classification" class="project__description--link">
-                                            <i class="fa-solid fa-link"></i>
                                         </a>
                                     </div>
                                 </div>
                             </div>
                         </li>
 
+                        <!-- 8. Real Estate Price Predictor -->
                         <li class="project">
                             <div class="project__wrapper">
                                 <img src="./assets/REPP.png" class="project__img" alt="Real Estate Price Predictor" />
@@ -400,46 +457,19 @@
                                 <div class="project__description">
                                     <h3 class="project__description--title">Real Estate Price Detector</h3>
                                     <h4 class="project__description--sub-title">
-                                        <i class="devicon-python-plain"></i> Early regression project
+                                        <i class="devicon-python-plain"></i> Scikit-learn + Flask
                                     </h4>
                                     <p class="project__description--para">
-                                        ▹ Supervised learning pipeline for housing price prediction with feature engineering and GridSearchCV. <br />
-                                        ▹ Exposed through a lightweight Flask API as an introduction to serving ML models. <br />
+                                        Classic regression problem, but I learned the fundamentals here: feature engineering, hyperparameter tuning with GridSearchCV, and the art of serving predictions through a clean API. The project that got me hooked on ML engineering.
                                     </p>
                                     <div class="project__description--links">
-                                        <a href="https://github.com/aryankashyap7/Real-Estate-Price-Predictor" class="project__description--link">
+                                        <a href="https://github.com/aryankashyap7/Real-Estate-Price-Predictor" target="_blank" class="project__description--link">
                                             <i class="fa-brands fa-github"></i>
-                                        </a>
-                                        <a href="https://github.com/aryankashyap7/Real-Estate-Price-Predictor" class="project__description--link">
-                                            <i class="fa-solid fa-link"></i>
                                         </a>
                                     </div>
                                 </div>
                             </div>
                         </li>
-
-                        <!-- DUMMY PROJECT
-                        <li class="project">
-                            <div class="project__wrapper">
-                                <img src="./assets/blinker mockup.png" class="project__img" alt="" />
-                                <div class="project__wrapper--bg"></div>
-                                <div class="project__description">
-                                    <h3 class="project__description--title">Car Sales Project</h3>
-                                    <h4 class="project__description--sub-title">HTML, CSS, JavaScript, Vue, Vuex</h4>
-                                    <p class="project__description--para">
-                                        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ab numquam rem omnis, consectetur provident corrupti.
-                                    </p>
-                                    <div class="project__description--links">
-                                        <a href="#" class="project__description--link">
-                                            <i class="fa-brands fa-github"></i>
-                                        </a>
-                                        <a href="#" class="project__description--link">
-                                            <i class="fa-solid fa-link"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </li> -->
                     </ul>
                 </div>
             </div>
